@@ -1,0 +1,73 @@
+[
+  {
+    "id": 1,
+    "name": "Thai Peanut Noodles",
+    "price": 4.99,
+    "currency": "USD",
+    "image_url": "http://dummyimage.com/189x105.png/ff4444/ffffff"
+  },
+  {
+    "id": 2,
+    "name": "Floral Summer Dress",
+    "price": 39.99,
+    "currency": "USD",
+    "image_url": "http://dummyimage.com/222x176.png/cc0000/ffffff"
+  },
+  {
+    "id": 3,
+    "name": "Gardening Gloves",
+    "price": 15.99,
+    "currency": "USD",
+    "image_url": "http://dummyimage.com/178x201.png/dddddd/000000"
+  },
+  {
+    "id": 4,
+    "name": "Ginger Turmeric Shots",
+    "price": 3.99,
+    "currency": "USD",
+    "image_url": "http://dummyimage.com/223x181.png/ff4444/ffffff"
+  },
+  {
+    "id": 5,
+    "name": "Desk Organizer Set",
+    "price": 29.99,
+    "currency": "USD",
+    "image_url": "http://dummyimage.com/188x136.png/cc0000/ffffff"
+  },
+  {
+    "id": 6,
+    "name": "Honey Lemon Tea",
+    "price": 3.29,
+    "currency": "USD",
+    "image_url": "http://dummyimage.com/182x154.png/dddddd/000000"
+  },
+  {
+    "id": 7,
+    "name": "Frozen Cauliflower Rice",
+    "price": 2.99,
+    "currency": "USD",
+    "image_url": "http://dummyimage.com/118x235.png/5fa2dd/ffffff"
+  },
+  {
+    "id": 8,
+    "name": "Nut Mix",
+    "price": 5.99,
+    "currency": "USD",
+    "image_url": "http://dummyimage.com/117x239.png/dddddd/000000"
+  },
+  {
+    "id": 9,
+    "name": "Woven Storage Baskets",
+    "price": 24.99,
+    "currency": "USD",
+    "image_url": "http://dummyimage.com/235x223.png/dddddd/000000"
+  },
+  {
+    "id": 10,
+    "name": "Guitar Tuner",
+    "price": 19.99,
+    "currency": "USD",
+    "image_url": "http://dummyimage.com/232x130.png/5fa2dd/ffffff"
+  }
+]
+
