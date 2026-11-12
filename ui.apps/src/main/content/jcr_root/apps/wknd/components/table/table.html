@@ -1,0 +1,51 @@
+
+<!--/* Adapt the current resource to the TableModel Sling Model */-->
+
+<div class="cmp-table-wrapper" data-sly-use.model="com.adobe.aem.guides.wknd.core.models.TableModel">
+<!--/* Optional heading above the table */-->
+<h2 class="cmp-table__title" data-sly-test="${model.hasTableTitle}">${model.tableTitle}</h2>
+<!--/* Only render the table when there is data */-->
+<div data-sly-test="${model.isReady}">
+<div class="cmp-table__container">
+<table class="${model.tableCssClass}">
+<!--/* Optional caption */-->
+<caption data-sly-test="${model.hasTableCaption}">${model.tableCaption}</caption>
+<!--/* ---- THEAD ---- */-->
+<!--/* Case 1: firstRowIsHeader=true — use first row data for thead */-->
+<thead data-sly-test="${model.firstRowIsHeader && model.headerRow}">
+<tr>
+<!--/* Iterate over cells of the header row */-->
+<th data-sly-repeat.cell="${model.headerRow.cells}" scope="col"
+class="cmp-table__header-cell">${cell}</th>
+</tr>
+</thead>
+<!--/* Case 2: explicit column headers multifield is defined (and firstRowIsHeader=false) */-->
+<thead data-sly-test="${!model.firstRowIsHeader && model.hasColumnHeaders}">
+<tr>
+<th data-sly-repeat.header="${model.columnHeaders}" scope="col" class="cmp-table__header-cell">
+                            ${header}</th>
+</tr>
+</thead>
+<!--/* ---- TBODY ---- */-->
+<tbody>
+<!--/* Body rows: all rows when firstRowIsHeader=false, rows[1..n] when true */-->
+<tr data-sly-repeat.row="${model.bodyRows}" class="${row.rowCssClass}">
+<!--/* First cell: render as <th scope="row"> when firstColIsHeader=true */-->
+<sly data-sly-repeat.cell="${row.cells}">
+<!--/* Row header cell */-->
+<th data-sly-test="${repeat.index == 0 && row.firstColIsHeader}" scope="row"
+class="cmp-table__row-header-cell">${cell}</th>
+<!--/* Regular data cell */-->
+<td data-sly-test="${!(repeat.index == 0 && row.firstColIsHeader)}" class="cmp-table__cell">
+                                ${cell}</td>
+</sly>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!--/* Author-mode placeholder when no data has been entered */-->
+<div data-sly-test="${!model.isReady}" class="cmp-table__placeholder">
+<p>Open the dialog to configure the table (add rows and columns).</p>
+</div>
+</div>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+    xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Table"
+    sling:resourceType="cq/gui/components/authoring/dialog">
+    <content
+        jcr:primaryType="nt:unstructured"
+        sling:resourceType="granite/ui/components/coral/foundation/tabs">
+        <items jcr:primaryType="nt:unstructured">
+            <!-- ==================== PROPERTIES TAB ==================== -->
+            <properties
+                jcr:primaryType="nt:unstructured"
+                jcr:title="Properties"
+                sling:resourceType="granite/ui/components/coral/foundation/container">
+                <items jcr:primaryType="nt:unstructured">
+                    <columns
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns">
+                        <items jcr:primaryType="nt:unstructured">
+                            <column
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/container">
+                                <items jcr:primaryType="nt:unstructured">
+
+                                    <!-- Table Title -->
+                                    <tableTitle
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                        fieldLabel="Table Title"
+                                        fieldDescription="Optional title displayed above the table."
+                                        name="./tableTitle"/>
+
+                                    <!-- Table Caption -->
+                                    <tableCaption
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                        fieldLabel="Table Caption"
+                                        fieldDescription="Optional caption (renders inside &lt;caption&gt; element for accessibility)."
+                                        name="./tableCaption"/>
+
+                                    <!-- Number of Columns -->
+                                    <numberOfColumns
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                        fieldLabel="Number of Columns"
+                                        fieldDescription="Define how many columns each row should have (1–20)."
+                                        name="./numberOfColumns"
+                                        value="3"
+                                        min="{Long}1"
+                                        max="{Long}20"
+                                        required="{Boolean}true"/>
+
+                                    <!-- First Row is Header -->
+                                    <firstRowIsHeader
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                        fieldLabel="First Row is Header"
+                                        text="Treat the first row as a table header (&lt;thead&gt;)"
+                                        name="./firstRowIsHeader"
+                                        value="{Boolean}true"
+                                        uncheckedValue="{Boolean}false"/>
+
+                                    <!-- First Column is Header -->
+                                    <firstColIsHeader
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                        fieldLabel="First Column is Header"
+                                        text="Treat the first cell of each row as a row header (&lt;th scope=&quot;row&quot;&gt;)"
+                                        name="./firstColIsHeader"
+                                        value="{Boolean}true"
+                                        uncheckedValue="{Boolean}false"/>
+
+                                    <!-- Striped Rows -->
+                                    <striped
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                        fieldLabel="Striped Rows"
+                                        text="Apply alternating row background shading"
+                                        name="./striped"
+                                        value="{Boolean}true"
+                                        uncheckedValue="{Boolean}false"/>
+
+                                    <!-- Bordered -->
+                                    <bordered
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                        fieldLabel="Bordered"
+                                        text="Show borders around all cells"
+                                        name="./bordered"
+                                        value="{Boolean}true"
+                                        uncheckedValue="{Boolean}false"
+                                        checked="{Boolean}true"/>
+
+                                    <!-- Hover Highlight -->
+                                    <hoverHighlight
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                        fieldLabel="Hover Highlight"
+                                        text="Highlight rows on mouse hover"
+                                        name="./hoverHighlight"
+                                        value="{Boolean}true"
+                                        uncheckedValue="{Boolean}false"
+                                        checked="{Boolean}true"/>
+
+                                </items>
+                            </column>
+                        </items>
+                    </columns>
+                </items>
+            </properties>
+
+            <!-- ==================== TABLE DATA TAB ==================== -->
+            <tabledata
+                jcr:primaryType="nt:unstructured"
+                jcr:title="Table Data"
+                sling:resourceType="granite/ui/components/coral/foundation/container">
+                <items jcr:primaryType="nt:unstructured">
+                    <columns
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns">
+                        <items jcr:primaryType="nt:unstructured">
+                            <column
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/container">
+                                <items jcr:primaryType="nt:unstructured">
+
+                                    <!-- Column Headers Multifield -->
+                                    <columnHeadersLabel
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/text"
+                                        text="Column Headers"
+                                        granite:class="coral-Form-fieldlabel"/>
+
+                                    <columnHeaders
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                        fieldLabel="Column Headers"
+                                        fieldDescription="Define column header labels (used when 'First Row is Header' is NOT checked)."
+                                        composite="{Boolean}true"
+                                        name="./columnHeaders">
+                                        <field
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/container"
+                                            name="./columnHeaders">
+                                            <items jcr:primaryType="nt:unstructured">
+                                                <headerText
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                    fieldLabel="Header Text"
+                                                    name="./headerText"/>
+                                            </items>
+                                        </field>
+                                    </columnHeaders>
+
+                                    <!-- Divider -->
+                                    <divider
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/separator"/>
+
+                                    <!-- Rows Multifield -->
+                                    <rows
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                        fieldLabel="Table Rows"
+                                        fieldDescription="Add rows. Each row has cells — number of cells should match the 'Number of Columns' setting."
+                                        composite="{Boolean}true"
+                                        name="./rows">
+                                        <field
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/container"
+                                            name="./rows">
+                                            <items jcr:primaryType="nt:unstructured">
+                                                <cells
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                    fieldLabel="Cells"
+                                                    fieldDescription="Add one item per column cell."
+                                                    composite="{Boolean}true"
+                                                    name="./cells">
+                                                    <field
+                                                        jcr:primaryType="nt:unstructured"
+                                                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                                                        name="./cells">
+                                                        <items jcr:primaryType="nt:unstructured">
+                                                            <cellValue
+                                                                jcr:primaryType="nt:unstructured"
+                                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                                fieldLabel="Cell Value"
+                                                                name="./cellValue"/>
+                                                        </items>
+                                                    </field>
+                                                </cells>
+                                            </items>
+                                        </field>
+                                    </rows>
+
+                                </items>
+                            </column>
+                        </items>
+                    </columns>
+                </items>
+            </tabledata>
+
+        </items>
+    </content>
+</jcr:root>

@@ -1,0 +1,58 @@
+<!--/*
+    WKND Product Listing Component
+    Renders a 3x3 block grid displaying products fetched asynchronously via JSON.
+*/-->
+<div data-sly-use.model="com.adobe.aem.guides.wknd.core.models.ProductListingModel"
+     data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
+     class="cmp-productlisting"
+     data-cmp-is="productlisting"
+     data-endpoint="${model.apiEndpoint @ context='uri'}"
+     data-limit="${model.limit}"
+     data-columns="${model.columns}">
+
+    <!--/* Component Title */-->
+    <header class="cmp-productlisting__header">
+        <h1 class="cmp-productlisting__title">${model.title}</h1>
+    </header>
+
+    <!--/* Error state (hidden by default) */-->
+    <div class="cmp-productlisting__status cmp-productlisting__status--error" style="display: none;" role="alert">
+        <p class="cmp-productlisting__status-message"></p>
+        <button type="button" class="cmp-productlisting__retry-btn">Retry Loading</button>
+    </div>
+
+    <!--/* Loading Skeleton (3x3 grid) */-->
+    <div class="cmp-productlisting__loading" aria-busy="true" aria-label="Loading products">
+        <div class="cmp-productlisting__grid cmp-productlisting__grid--skeleton" style="${model.gridStyle @ context='styleToken'}">
+            <div class="cmp-productlisting__card cmp-productlisting__card--skeleton" data-sly-repeat="${[1,2,3,4,5,6,7,8,9]}">
+                <div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short"></div>
+                <div class="cmp-productlisting__skeleton-line"></div>
+                <div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium"></div>
+            </div>
+        </div>
+    </div>
+
+    <!--/* Dynamic Product Grid (populated via JS) */-->
+    <div class="cmp-productlisting__grid cmp-productlisting__grid--active"
+         style="${model.gridStyle @ context='styleToken'}"
+         role="region"
+         aria-live="polite"
+         aria-label="Product Catalog">
+        <!--/* Fallback / Server-side initial render if available for progressive enhancement / SEO */-->
+        <sly data-sly-test="${model.hasProducts}">
+            <article class="cmp-productlisting__card"
+                     data-sly-repeat.item="${model.initialProducts}"
+                     data-product-id="${item.id}">
+                <p class="cmp-productlisting__card-line cmp-productlisting__card-id">Product ID: ${item.id}</p>
+                <p class="cmp-productlisting__card-line cmp-productlisting__card-name">Product Name :${item.name}</p>
+                <p class="cmp-productlisting__card-line cmp-productlisting__card-price">Price : ${item.formattedPrice}</p>
+            </article>
+        </sly>
+    </div>
+
+    <!--/* Empty State */-->
+    <div class="cmp-productlisting__status cmp-productlisting__status--empty" style="display: none;">
+        <p>No products available at this time.</p>
+    </div>
+</div>
+
