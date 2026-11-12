@@ -1,0 +1,2397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEM Product Listing Component - Complete Technical Submission</title>
+    <style>
+        /**
+ * WKND Product Listing Component Styles
+ * Follows BEM methodology with responsive CSS Grid.
+ */
+
+.cmp-productlisting {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #222222;
+    box-sizing: border-box;
+}
+
+.cmp-productlisting *,
+.cmp-productlisting *::before,
+.cmp-productlisting *::after {
+    box-sizing: inherit;
+}
+
+/* Header & Title */
+.cmp-productlisting__header {
+    margin-bottom: 36px;
+    text-align: left;
+}
+
+.cmp-productlisting__title {
+    font-size: 32px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+/* 3x3 Grid Container */
+.cmp-productlisting__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-bottom: 40px;
+}
+
+/* Individual Product Block / Card */
+.cmp-productlisting__card {
+    background-color: #135d79;
+    border: 2px solid #0f4d64;
+    border-radius: 2px;
+    height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 24px 20px;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    cursor: default;
+    user-select: none;
+}
+
+.cmp-productlisting__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(19, 93, 121, 0.28);
+    background-color: #166989;
+}
+
+/* Card Text Lines */
+.cmp-productlisting__card-line {
+    margin: 4px 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #ffffff;
+    letter-spacing: 0.2px;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+.cmp-productlisting__card-id {
+    font-weight: 400;
+}
+
+.cmp-productlisting__card-name {
+    font-weight: 500;
+}
+
+.cmp-productlisting__card-price {
+    font-weight: 400;
+}
+
+/* Status: Error & Empty */
+.cmp-productlisting__status {
+    padding: 24px;
+    border-radius: 4px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.cmp-productlisting__status--error {
+    background-color: #fff2f2;
+    border: 1px solid #ffcccc;
+    color: #c92a2a;
+}
+
+.cmp-productlisting__status--empty {
+    background-color: #f8f9fa;
+    border: 1px dashed #dee2e6;
+    color: #6c757d;
+}
+
+.cmp-productlisting__retry-btn {
+    margin-top: 12px;
+    padding: 8px 20px;
+    background-color: #135d79;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.15s ease;
+}
+
+.cmp-productlisting__retry-btn:hover {
+    background-color: #0d475d;
+}
+
+/* Loading Skeleton Shimmer */
+.cmp-productlisting__card--skeleton {
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+    box-shadow: none;
+    cursor: wait;
+}
+
+.cmp-productlisting__skeleton-line {
+    width: 80%;
+    height: 14px;
+    margin: 8px 0;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #dee2e6 25%, #f1f3f5 50%, #dee2e6 75%);
+    background-size: 200% 100%;
+    animation: cmp-skeleton-pulse 1.5s infinite ease-in-out;
+}
+
+.cmp-productlisting__skeleton-line--short {
+    width: 45%;
+}
+
+.cmp-productlisting__skeleton-line--medium {
+    width: 60%;
+}
+
+@keyframes cmp-skeleton-pulse {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Responsive Breakpoints */
+@media screen and (max-width: 992px) {
+    .cmp-productlisting__grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 24px;
+    }
+
+    .cmp-productlisting__title {
+        font-size: 26px;
+    }
+
+    .cmp-productlisting__card {
+        height: 200px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .cmp-productlisting__grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+
+    .cmp-productlisting__title {
+        font-size: 22px;
+    }
+
+    .cmp-productlisting__card {
+        height: 180px;
+        padding: 16px;
+    }
+
+    .cmp-productlisting__card-line {
+        font-size: 15px;
+    }
+}
+
+
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #fdfdfd;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #212529;
+            line-height: 1.6;
+        }
+
+        .top-navbar {
+            background: #0b3954;
+            color: #ffffff;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .top-navbar h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-pill {
+            background: #2b8a3e;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-links a {
+            color: #d0ebff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        .main-container {
+            max-width: 1240px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+
+        .section-card {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .section-header {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            color: #0b3954;
+            font-size: 24px;
+        }
+
+        .demo-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f1f3f5;
+            padding: 12px 18px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .demo-toolbar label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .demo-btn {
+            padding: 7px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+
+        .demo-btn--primary {
+            background: #135d79;
+            color: white;
+        }
+
+        .demo-btn--primary:hover {
+            background: #0f4d64;
+        }
+
+        .demo-btn--danger {
+            background: #fa5252;
+            color: white;
+        }
+
+        .demo-btn--danger:hover {
+            background: #e03131;
+        }
+
+        .demo-select {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            font-size: 13px;
+            background: white;
+        }
+
+        /* Code Viewer Tabs */
+        .tabs-nav-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #ced4da;
+            padding-bottom: 8px;
+        }
+
+        .tab-nav-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 8px 14px;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.15s;
+        }
+
+        .tab-nav-btn.active {
+            background: #0b3954;
+            color: #ffffff;
+            border-color: #0b3954;
+        }
+
+        .code-tab-panel {
+            display: none;
+        }
+
+        .code-tab-panel.active {
+            display: block;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #212529;
+            color: #adb5bd;
+            padding: 10px 16px;
+            border-radius: 6px 6px 0 0;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .copy-btn {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background: #135d79;
+        }
+
+        pre {
+            margin: 0;
+            background: #1a1e24;
+            color: #e9ecef;
+            padding: 20px;
+            border-radius: 0 0 6px 6px;
+            overflow-x: auto;
+            max-height: 520px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .dossier-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .dossier-table th, .dossier-table td {
+            padding: 10px 14px;
+            border: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+
+        .dossier-table th {
+            background: #f1f3f5;
+            text-align: left;
+            color: #0b3954;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-navbar">
+        <h1>
+            Adobe Experience Manager
+            <span class="badge-pill">Interview Submission</span>
+        </h1>
+        <nav class="nav-links">
+            <a href="#demo-section">Live Component Preview</a>
+            <a href="#source-section">Source Code Viewer</a>
+            <a href="#architecture-section">Architecture &amp; Best Practices</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+
+        <!-- Live Demo Section -->
+        <section class="section-card" id="demo-section">
+            <div class="section-header">
+                <h2>Live Interactive Component Demo</h2>
+                <p>Simulates the exact AEM component behavior, asynchronous fetch, 3x3 layout, loading shimmer skeleton, and error states.</p>
+            </div>
+
+            <div class="demo-toolbar">
+                <label for="gridSelect">Grid Layout Preset:</label>
+                <select id="gridSelect" class="demo-select">
+                    <option value="9" selected>3x3 Blocks (9 items - Default)</option>
+                    <option value="6">3x2 Blocks (6 items)</option>
+                    <option value="4">2x2 Blocks (4 items)</option>
+                    <option value="3">3x1 Blocks (3 items)</option>
+                    <option value="10">All 10 items</option>
+                </select>
+
+                <button type="button" id="reloadBtn" class="demo-btn demo-btn--primary">Fetch /bin/wknd/products</button>
+                <button type="button" id="errorBtn" class="demo-btn demo-btn--danger">Simulate 500 Error</button>
+            </div>
+
+            <!-- Component DOM Structure -->
+            <div class="cmp-productlisting"
+                 data-cmp-is="productlisting"
+                 data-endpoint="/bin/wknd/products"
+                 data-limit="9"
+                 data-columns="3">
+
+                <header class="cmp-productlisting__header">
+                    <h1 class="cmp-productlisting__title">Product Listing Page using Html/CSS/JS</h1>
+                </header>
+
+                <div class="cmp-productlisting__status cmp-productlisting__status--error" style="display: none;" role="alert">
+                    <p class="cmp-productlisting__status-message"></p>
+                    <button type="button" class="cmp-productlisting__retry-btn">Retry Loading</button>
+                </div>
+
+                <div class="cmp-productlisting__loading" aria-busy="true" aria-label="Loading products">
+                    <div class="cmp-productlisting__grid cmp-productlisting__grid--skeleton" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="cmp-productlisting__card cmp-productlisting__card--skeleton"><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short"></div><div class="cmp-productlisting__skeleton-line"></div><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium"></div></div>
+                        <div class="cmp-productlisting__card cmp-productlisting__card--skeleton"><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short"></div><div class="cmp-productlisting__skeleton-line"></div><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium"></div></div>
+                        <div class="cmp-productlisting__card cmp-productlisting__card--skeleton"><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short"></div><div class="cmp-productlisting__skeleton-line"></div><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium"></div></div>
+                        <div class="cmp-productlisting__card cmp-productlisting__card--skeleton"><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short"></div><div class="cmp-productlisting__skeleton-line"></div><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium"></div></div>
+                        <div class="cmp-productlisting__card cmp-productlisting__card--skeleton"><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short"></div><div class="cmp-productlisting__skeleton-line"></div><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium"></div></div>
+                        <div class="cmp-productlisting__card cmp-productlisting__card--skeleton"><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short"></div><div class="cmp-productlisting__skeleton-line"></div><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium"></div></div>
+                        <div class="cmp-productlisting__card cmp-productlisting__card--skeleton"><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short"></div><div class="cmp-productlisting__skeleton-line"></div><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium"></div></div>
+                        <div class="cmp-productlisting__card cmp-productlisting__card--skeleton"><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short"></div><div class="cmp-productlisting__skeleton-line"></div><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium"></div></div>
+                        <div class="cmp-productlisting__card cmp-productlisting__card--skeleton"><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short"></div><div class="cmp-productlisting__skeleton-line"></div><div class="cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium"></div></div>
+                    </div>
+                </div>
+
+                <div class="cmp-productlisting__grid cmp-productlisting__grid--active"
+                     style="grid-template-columns: repeat(3, 1fr);"
+                     role="region"
+                     aria-live="polite"
+                     aria-label="Product Catalog">
+                </div>
+
+                <div class="cmp-productlisting__status cmp-productlisting__status--empty" style="display: none;">
+                    <p>No products available at this time.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Source Code Viewer Section -->
+        <section class="section-card" id="source-section">
+            <div class="section-header">
+                <h2>Source Code &amp; Test Suite Viewer</h2>
+                <p>Click any tab to review the complete implementation and unit tests. Use the "Copy Code" button to copy clean code.</p>
+            </div>
+
+            <div class="tabs-nav-container">
+                <button class="tab-nav-btn active" onclick="switchTab(0)">Product.java</button><button class="tab-nav-btn " onclick="switchTab(1)">ProductListingService.java</button><button class="tab-nav-btn " onclick="switchTab(2)">ProductListingServiceConfig.java</button><button class="tab-nav-btn " onclick="switchTab(3)">ProductListingServiceImpl.java</button><button class="tab-nav-btn " onclick="switchTab(4)">ProductListingServlet.java</button><button class="tab-nav-btn " onclick="switchTab(5)">ProductListingModel.java</button><button class="tab-nav-btn " onclick="switchTab(6)">productlisting.html</button><button class="tab-nav-btn " onclick="switchTab(7)">_cq_dialog/.content.xml</button><button class="tab-nav-btn " onclick="switchTab(8)">productlisting.css</button><button class="tab-nav-btn " onclick="switchTab(9)">productlisting.js</button><button class="tab-nav-btn " onclick="switchTab(10)">ProductListingServiceTest.java</button><button class="tab-nav-btn " onclick="switchTab(11)">ProductListingServletTest.java</button><button class="tab-nav-btn " onclick="switchTab(12)">ProductListingModelTest.java</button>
+            </div>
+
+            <div class="tabs-content-container">
+                
+    <div class="code-tab-panel active" id="tab-0">
+        <div class="code-header">
+            <span class="code-filename">Product.java</span>
+            <button class="copy-btn" onclick="copyCode('code-block-0')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-0">package com.adobe.aem.guides.wknd.core.dto;
+
+import java.io.Serializable;
+import java.util.Objects;
+
+import com.google.gson.annotations.SerializedName;
+
+/**
+ * Data Transfer Object representing a Product.
+ * Matches the required product listing JSON structure.
+ */
+public class Product implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @SerializedName(&quot;id&quot;)
+    private Long id;
+
+    @SerializedName(&quot;name&quot;)
+    private String name;
+
+    @SerializedName(&quot;price&quot;)
+    private Double price;
+
+    @SerializedName(&quot;currency&quot;)
+    private String currency;
+
+    @SerializedName(&quot;image_url&quot;)
+    private String imageUrl;
+
+    public Product() {
+    }
+
+    public Product(Long id, String name, Double price, String currency, String imageUrl) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.currency = currency;
+        this.imageUrl = imageUrl;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getFormattedPrice() {
+        if (price == null) {
+            return &quot;&quot;;
+        }
+        String curr = currency != null ? currency : &quot;&quot;;
+        return String.format(&quot;%.2f%s&quot;, price, curr);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return Objects.equals(id, product.id) &amp;&amp;
+               Objects.equals(name, product.name) &amp;&amp;
+               Objects.equals(price, product.price) &amp;&amp;
+               Objects.equals(currency, product.currency) &amp;&amp;
+               Objects.equals(imageUrl, product.imageUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, price, currency, imageUrl);
+    }
+
+    @Override
+    public String toString() {
+        return &quot;Product{&quot; +
+                &quot;id=&quot; + id +
+                &quot;, name=&#x27;&quot; + name + &#x27;\&#x27;&#x27; +
+                &quot;, price=&quot; + price +
+                &quot;, currency=&#x27;&quot; + currency + &#x27;\&#x27;&#x27; +
+                &quot;, imageUrl=&#x27;&quot; + imageUrl + &#x27;\&#x27;&#x27; +
+                &#x27;}&#x27;;
+    }
+}
+
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-1">
+        <div class="code-header">
+            <span class="code-filename">ProductListingService.java</span>
+            <button class="copy-btn" onclick="copyCode('code-block-1')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-1">package com.adobe.aem.guides.wknd.core.services;
+
+import java.util.List;
+
+import com.adobe.aem.guides.wknd.core.dto.Product;
+
+/**
+ * Service providing product listing data.
+ */
+public interface ProductListingService {
+
+    /**
+     * Retrieve all available products up to the default configured limit.
+     *
+     * @return List of products.
+     */
+    List&lt;Product&gt; getProducts();
+
+    /**
+     * Retrieve products up to the specified limit.
+     *
+     * @param limit maximum number of products to return (e.g. 9 for a 3x3 grid).
+     * @return List of products.
+     */
+    List&lt;Product&gt; getProducts(int limit);
+
+    /**
+     * Retrieve products serialized as a JSON string.
+     *
+     * @param limit maximum number of products to return.
+     * @return JSON string representing an array of products.
+     */
+    String getProductsAsJson(int limit);
+}
+
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-2">
+        <div class="code-header">
+            <span class="code-filename">ProductListingServiceConfig.java</span>
+            <button class="copy-btn" onclick="copyCode('code-block-2')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-2">package com.adobe.aem.guides.wknd.core.services.config;
+
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.AttributeType;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
+/**
+ * OSGi Configuration definition for ProductListingService.
+ */
+@ObjectClassDefinition(
+        name = &quot;WKND Product Listing Service Configuration&quot;,
+        description = &quot;Configuration for Product Listing API endpoint, limits, and timeouts&quot;
+)
+public @interface ProductListingServiceConfig {
+
+    @AttributeDefinition(
+            name = &quot;API Endpoint URL&quot;,
+            description = &quot;External or internal endpoint URL for retrieving product JSON. If blank, default seed data will be used.&quot;,
+            type = AttributeType.STRING
+    )
+    String apiEndpointUrl() default &quot;&quot;;
+
+    @AttributeDefinition(
+            name = &quot;Default Product Limit&quot;,
+            description = &quot;Default number of products to return if not specified in request (e.g. 9 for 3x3 grid)&quot;,
+            type = AttributeType.INTEGER
+    )
+    int defaultLimit() default 9;
+
+    @AttributeDefinition(
+            name = &quot;Connection Timeout (ms)&quot;,
+            description = &quot;Connection timeout in milliseconds when hitting external endpoints&quot;,
+            type = AttributeType.INTEGER
+    )
+    int connectionTimeoutMs() default 5000;
+
+    @AttributeDefinition(
+            name = &quot;Read Timeout (ms)&quot;,
+            description = &quot;Read timeout in milliseconds when hitting external endpoints&quot;,
+            type = AttributeType.INTEGER
+    )
+    int readTimeoutMs() default 5000;
+}
+
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-3">
+        <div class="code-header">
+            <span class="code-filename">ProductListingServiceImpl.java</span>
+            <button class="copy-btn" onclick="copyCode('code-block-3')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-3">package com.adobe.aem.guides.wknd.core.services.impl;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.adobe.aem.guides.wknd.core.dto.Product;
+import com.adobe.aem.guides.wknd.core.services.ProductListingService;
+import com.adobe.aem.guides.wknd.core.services.config.ProductListingServiceConfig;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+/**
+ * Implementation of {@link ProductListingService}.
+ * Fetches product catalog from an external REST API or falls back to
+ * a resilient local seed dataset.
+ */
+@Component(
+        service = ProductListingService.class,
+        immediate = true
+)
+@Designate(ocd = ProductListingServiceConfig.class)
+public class ProductListingServiceImpl implements ProductListingService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProductListingServiceImpl.class);
+
+    private static final String DEFAULT_SEED_JSON = &quot;[&quot;
+            + &quot;{\&quot;id\&quot;:1,\&quot;name\&quot;:\&quot;Thai Peanut Noodles\&quot;,\&quot;price\&quot;:4.99,\&quot;currency\&quot;:\&quot;USD\&quot;,\&quot;image_url\&quot;:\&quot;http://dummyimage.com/189x105.png/ff4444/ffffff\&quot;},&quot;
+            + &quot;{\&quot;id\&quot;:2,\&quot;name\&quot;:\&quot;Floral Summer Dress\&quot;,\&quot;price\&quot;:39.99,\&quot;currency\&quot;:\&quot;USD\&quot;,\&quot;image_url\&quot;:\&quot;http://dummyimage.com/222x176.png/cc0000/ffffff\&quot;},&quot;
+            + &quot;{\&quot;id\&quot;:3,\&quot;name\&quot;:\&quot;Gardening Gloves\&quot;,\&quot;price\&quot;:15.99,\&quot;currency\&quot;:\&quot;USD\&quot;,\&quot;image_url\&quot;:\&quot;http://dummyimage.com/178x201.png/dddddd/000000\&quot;},&quot;
+            + &quot;{\&quot;id\&quot;:4,\&quot;name\&quot;:\&quot;Ginger Turmeric Shots\&quot;,\&quot;price\&quot;:3.99,\&quot;currency\&quot;:\&quot;USD\&quot;,\&quot;image_url\&quot;:\&quot;http://dummyimage.com/223x181.png/ff4444/ffffff\&quot;},&quot;
+            + &quot;{\&quot;id\&quot;:5,\&quot;name\&quot;:\&quot;Desk Organizer Set\&quot;,\&quot;price\&quot;:29.99,\&quot;currency\&quot;:\&quot;USD\&quot;,\&quot;image_url\&quot;:\&quot;http://dummyimage.com/188x136.png/cc0000/ffffff\&quot;},&quot;
+            + &quot;{\&quot;id\&quot;:6,\&quot;name\&quot;:\&quot;Honey Lemon Tea\&quot;,\&quot;price\&quot;:3.29,\&quot;currency\&quot;:\&quot;USD\&quot;,\&quot;image_url\&quot;:\&quot;http://dummyimage.com/182x154.png/dddddd/000000\&quot;},&quot;
+            + &quot;{\&quot;id\&quot;:7,\&quot;name\&quot;:\&quot;Frozen Cauliflower Rice\&quot;,\&quot;price\&quot;:2.99,\&quot;currency\&quot;:\&quot;USD\&quot;,\&quot;image_url\&quot;:\&quot;http://dummyimage.com/118x235.png/5fa2dd/ffffff\&quot;},&quot;
+            + &quot;{\&quot;id\&quot;:8,\&quot;name\&quot;:\&quot;Nut Mix\&quot;,\&quot;price\&quot;:5.99,\&quot;currency\&quot;:\&quot;USD\&quot;,\&quot;image_url\&quot;:\&quot;http://dummyimage.com/117x239.png/dddddd/000000\&quot;},&quot;
+            + &quot;{\&quot;id\&quot;:9,\&quot;name\&quot;:\&quot;Woven Storage Baskets\&quot;,\&quot;price\&quot;:24.99,\&quot;currency\&quot;:\&quot;USD\&quot;,\&quot;image_url\&quot;:\&quot;http://dummyimage.com/235x223.png/dddddd/000000\&quot;},&quot;
+            + &quot;{\&quot;id\&quot;:10,\&quot;name\&quot;:\&quot;Guitar Tuner\&quot;,\&quot;price\&quot;:19.99,\&quot;currency\&quot;:\&quot;USD\&quot;,\&quot;image_url\&quot;:\&quot;http://dummyimage.com/232x130.png/5fa2dd/ffffff\&quot;}&quot;
+            + &quot;]&quot;;
+
+    private final Gson gson = new GsonBuilder().create();
+    private final Type productListType = new TypeToken&lt;List&lt;Product&gt;&gt;() {}.getType();
+
+    private ProductListingServiceConfig config;
+
+    @Activate
+    @Modified
+    public void activate(final ProductListingServiceConfig config) {
+        this.config = config;
+        LOG.info(&quot;ProductListingServiceImpl activated with endpoint: {}, default limit: {}&quot;,
+                config != null ? config.apiEndpointUrl() : &quot;none&quot;,
+                config != null ? config.defaultLimit() : 9);
+    }
+
+    @Override
+    public List&lt;Product&gt; getProducts() {
+        int limit = (config != null &amp;&amp; config.defaultLimit() &gt; 0) ? config.defaultLimit() : 9;
+        return getProducts(limit);
+    }
+
+    @Override
+    public List&lt;Product&gt; getProducts(int limit) {
+        List&lt;Product&gt; products = null;
+
+        if (config != null &amp;&amp; StringUtils.isNotBlank(config.apiEndpointUrl())) {
+            products = fetchFromExternalEndpoint(config.apiEndpointUrl());
+        }
+
+        if (products == null || products.isEmpty()) {
+            LOG.debug(&quot;Using local seed dataset for products&quot;);
+            products = parseJson(DEFAULT_SEED_JSON);
+        }
+
+        if (limit &gt; 0 &amp;&amp; products.size() &gt; limit) {
+            return products.stream().limit(limit).collect(Collectors.toList());
+        }
+
+        return products;
+    }
+
+    @Override
+    public String getProductsAsJson(int limit) {
+        List&lt;Product&gt; products = getProducts(limit);
+        return gson.toJson(products);
+    }
+
+    private List&lt;Product&gt; fetchFromExternalEndpoint(String endpointUrl) {
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(endpointUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod(&quot;GET&quot;);
+            connection.setRequestProperty(&quot;Accept&quot;, &quot;application/json&quot;);
+
+            int connectTimeout = (config != null &amp;&amp; config.connectionTimeoutMs() &gt; 0) ? config.connectionTimeoutMs() : 5000;
+            int readTimeout = (config != null &amp;&amp; config.readTimeoutMs() &gt; 0) ? config.readTimeoutMs() : 5000;
+            connection.setConnectTimeout(connectTimeout);
+            connection.setReadTimeout(readTimeout);
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    return parseJson(response.toString());
+                }
+            } else {
+                LOG.warn(&quot;Failed to fetch products from {}: HTTP status {}&quot;, endpointUrl, responseCode);
+            }
+        } catch (Exception e) {
+            LOG.error(&quot;Exception while fetching products from external endpoint: {}&quot;, endpointUrl, e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private List&lt;Product&gt; parseJson(String json) {
+        try {
+            List&lt;Product&gt; list = gson.fromJson(json, productListType);
+            return list != null ? list : new ArrayList&lt;&gt;();
+        } catch (Exception e) {
+            LOG.error(&quot;Failed to parse product JSON&quot;, e);
+            return Collections.emptyList();
+        }
+    }
+}
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-4">
+        <div class="code-header">
+            <span class="code-filename">ProductListingServlet.java</span>
+            <button class="copy-btn" onclick="copyCode('code-block-4')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-4">package com.adobe.aem.guides.wknd.core.servlets;
+
+import java.io.IOException;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.servlets.HttpConstants;
+import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
+import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.propertytypes.ServiceDescription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.adobe.aem.guides.wknd.core.services.ProductListingService;
+
+/**
+ * Sling Servlet exposing the product catalog as a JSON endpoint.
+ *
+ * &lt;p&gt;Can be invoked either via:&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;b&gt;Resource type selector:&lt;/b&gt; &lt;code&gt;&amp;lt;path-to-productlisting-component&amp;gt;.products.json&lt;/code&gt;&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;Path-based endpoint:&lt;/b&gt; &lt;code&gt;/bin/wknd/products&lt;/code&gt;&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * Supports query parameter: &lt;code&gt;limit&lt;/code&gt; (default 9 for 3x3 grid).
+ */
+@Component(
+        service = { Servlet.class },
+        property = {
+                &quot;sling.servlet.paths=/bin/wknd/products&quot;,
+                &quot;sling.servlet.methods=&quot; + HttpConstants.METHOD_GET
+        }
+)
+@SlingServletResourceTypes(
+        resourceTypes = &quot;wknd/components/productlisting&quot;,
+        methods = HttpConstants.METHOD_GET,
+        selectors = &quot;products&quot;,
+        extensions = &quot;json&quot;
+)
+@ServiceDescription(&quot;WKND Product Listing JSON Servlet&quot;)
+public class ProductListingServlet extends SlingSafeMethodsServlet {
+
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(ProductListingServlet.class);
+    private static final int DEFAULT_LIMIT = 9;
+    private static final int MAX_LIMIT = 100;
+
+    @Reference
+    private transient ProductListingService productListingService;
+
+    @Override
+    protected void doGet(final SlingHttpServletRequest request,
+                         final SlingHttpServletResponse response) throws ServletException, IOException {
+        response.setContentType(&quot;application/json;charset=UTF-8&quot;);
+        response.setCharacterEncoding(&quot;UTF-8&quot;);
+        response.setHeader(&quot;Cache-Control&quot;, &quot;public, max-age=60&quot;);
+
+        try {
+            int limit = parseLimit(request.getParameter(&quot;limit&quot;));
+            LOG.debug(&quot;ProductListingServlet handling request with limit={}&quot;, limit);
+
+            String jsonResponse = productListingService.getProductsAsJson(limit);
+
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write(jsonResponse);
+        } catch (NumberFormatException e) {
+            LOG.warn(&quot;Invalid limit parameter provided&quot;, e);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(&quot;{\&quot;error\&quot;:true,\&quot;message\&quot;:\&quot;Invalid &#x27;limit&#x27; query parameter. Must be an integer.\&quot;}&quot;);
+        } catch (Exception e) {
+            LOG.error(&quot;Error generating product listing response&quot;, e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write(&quot;{\&quot;error\&quot;:true,\&quot;message\&quot;:\&quot;Unable to load product catalog.\&quot;}&quot;);
+        }
+    }
+
+    private int parseLimit(String limitParam) {
+        if (StringUtils.isBlank(limitParam)) {
+            return DEFAULT_LIMIT;
+        }
+        int parsed = Integer.parseInt(limitParam.trim());
+        if (parsed &lt;= 0) {
+            return DEFAULT_LIMIT;
+        }
+        return Math.min(parsed, MAX_LIMIT);
+    }
+}
+
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-5">
+        <div class="code-header">
+            <span class="code-filename">ProductListingModel.java</span>
+            <button class="copy-btn" onclick="copyCode('code-block-5')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-5">package com.adobe.aem.guides.wknd.core.models;
+
+import java.util.Collections;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.models.annotations.Default;
+import org.apache.sling.models.annotations.DefaultInjectionStrategy;
+import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.adobe.aem.guides.wknd.core.dto.Product;
+import com.adobe.aem.guides.wknd.core.services.ProductListingService;
+
+/**
+ * Sling Model for the Product Listing Component.
+ *
+ * Exposes authored component configuration, grid dimensions, endpoint details,
+ * and optional initial product data for progressive enhancement.
+ */
+@Model(
+        adaptables = { Resource.class, SlingHttpServletRequest.class },
+        defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL,
+        resourceType = &quot;wknd/components/productlisting&quot;
+)
+public class ProductListingModel {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProductListingModel.class);
+    private static final String DEFAULT_TITLE = &quot;Product Listing Page using Html/CSS/JS&quot;;
+    private static final String DEFAULT_ENDPOINT = &quot;/bin/wknd/products&quot;;
+    private static final int DEFAULT_LIMIT = 9;
+    private static final int DEFAULT_COLUMNS = 3;
+
+    @ValueMapValue
+    @Default(values = DEFAULT_TITLE)
+    private String title;
+
+    @ValueMapValue
+    @Default(values = &quot;3x3&quot;)
+    private String gridPreset;
+
+    @ValueMapValue
+    @Default(values = &quot;osgi&quot;)
+    private String sourceMode;
+
+    @ValueMapValue
+    @Default(values = DEFAULT_ENDPOINT)
+    private String apiEndpoint;
+
+    @ValueMapValue
+    @Default(intValues = DEFAULT_LIMIT)
+    private int limit;
+
+    @ValueMapValue
+    @Default(intValues = DEFAULT_COLUMNS)
+    private int columns;
+
+    @OSGiService
+    private ProductListingService productListingService;
+
+    private List&lt;Product&gt; initialProducts;
+
+    @PostConstruct
+    protected void init() {
+        if (StringUtils.isBlank(title)) {
+            title = DEFAULT_TITLE;
+        }
+
+        // Apply Grid Preset presets if configured
+        if (&quot;3x3&quot;.equalsIgnoreCase(gridPreset)) {
+            this.columns = 3;
+            this.limit = 9;
+        } else if (&quot;3x2&quot;.equalsIgnoreCase(gridPreset)) {
+            this.columns = 3;
+            this.limit = 6;
+        } else if (&quot;2x2&quot;.equalsIgnoreCase(gridPreset)) {
+            this.columns = 2;
+            this.limit = 4;
+        } else if (&quot;3x1&quot;.equalsIgnoreCase(gridPreset)) {
+            this.columns = 3;
+            this.limit = 3;
+        } else {
+            // &quot;custom&quot; or unspecified
+            if (this.columns &lt;= 0) {
+                this.columns = DEFAULT_COLUMNS;
+            }
+            if (this.limit &lt;= 0) {
+                this.limit = DEFAULT_LIMIT;
+            }
+        }
+
+        // Apply Data Source Strategy
+        if (&quot;osgi&quot;.equalsIgnoreCase(sourceMode) || StringUtils.isBlank(apiEndpoint)) {
+            this.apiEndpoint = DEFAULT_ENDPOINT;
+        }
+
+        // Optional server-side prefetch via OSGi Service
+        if (productListingService != null) {
+            try {
+                this.initialProducts = productListingService.getProducts(limit);
+            } catch (Exception e) {
+                LOG.error(&quot;Failed to load initial products in model init&quot;, e);
+                this.initialProducts = Collections.emptyList();
+            }
+        } else {
+            this.initialProducts = Collections.emptyList();
+        }
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getGridPreset() {
+        return gridPreset;
+    }
+
+    public String getSourceMode() {
+        return sourceMode;
+    }
+
+    public String getApiEndpoint() {
+        return apiEndpoint;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public int getColumns() {
+        return columns;
+    }
+
+    public List&lt;Product&gt; getInitialProducts() {
+        return initialProducts != null ? Collections.unmodifiableList(initialProducts) : Collections.emptyList();
+    }
+
+    public boolean hasProducts() {
+        return initialProducts != null &amp;&amp; !initialProducts.isEmpty();
+    }
+
+    public String getGridStyle() {
+        return String.format(&quot;grid-template-columns: repeat(%d, 1fr);&quot;, columns &gt; 0 ? columns : 3);
+    }
+}
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-6">
+        <div class="code-header">
+            <span class="code-filename">productlisting.html</span>
+            <button class="copy-btn" onclick="copyCode('code-block-6')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-6">&lt;!--/*
+    WKND Product Listing Component
+    Renders a 3x3 block grid displaying products fetched asynchronously via JSON.
+*/--&gt;
+&lt;div data-sly-use.model=&quot;com.adobe.aem.guides.wknd.core.models.ProductListingModel&quot;
+     data-sly-use.clientlib=&quot;/libs/granite/sightly/templates/clientlib.html&quot;
+     class=&quot;cmp-productlisting&quot;
+     data-cmp-is=&quot;productlisting&quot;
+     data-endpoint=&quot;${model.apiEndpoint @ context=&#x27;uri&#x27;}&quot;
+     data-limit=&quot;${model.limit}&quot;
+     data-columns=&quot;${model.columns}&quot;&gt;
+
+    &lt;!--/* Component Title */--&gt;
+    &lt;header class=&quot;cmp-productlisting__header&quot;&gt;
+        &lt;h1 class=&quot;cmp-productlisting__title&quot;&gt;${model.title}&lt;/h1&gt;
+    &lt;/header&gt;
+
+    &lt;!--/* Error state (hidden by default) */--&gt;
+    &lt;div class=&quot;cmp-productlisting__status cmp-productlisting__status--error&quot; style=&quot;display: none;&quot; role=&quot;alert&quot;&gt;
+        &lt;p class=&quot;cmp-productlisting__status-message&quot;&gt;&lt;/p&gt;
+        &lt;button type=&quot;button&quot; class=&quot;cmp-productlisting__retry-btn&quot;&gt;Retry Loading&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!--/* Loading Skeleton (3x3 grid) */--&gt;
+    &lt;div class=&quot;cmp-productlisting__loading&quot; aria-busy=&quot;true&quot; aria-label=&quot;Loading products&quot;&gt;
+        &lt;div class=&quot;cmp-productlisting__grid cmp-productlisting__grid--skeleton&quot; style=&quot;${model.gridStyle @ context=&#x27;styleToken&#x27;}&quot;&gt;
+            &lt;div class=&quot;cmp-productlisting__card cmp-productlisting__card--skeleton&quot; data-sly-repeat=&quot;${[1,2,3,4,5,6,7,8,9]}&quot;&gt;
+                &lt;div class=&quot;cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--short&quot;&gt;&lt;/div&gt;
+                &lt;div class=&quot;cmp-productlisting__skeleton-line&quot;&gt;&lt;/div&gt;
+                &lt;div class=&quot;cmp-productlisting__skeleton-line cmp-productlisting__skeleton-line--medium&quot;&gt;&lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!--/* Dynamic Product Grid (populated via JS) */--&gt;
+    &lt;div class=&quot;cmp-productlisting__grid cmp-productlisting__grid--active&quot;
+         style=&quot;${model.gridStyle @ context=&#x27;styleToken&#x27;}&quot;
+         role=&quot;region&quot;
+         aria-live=&quot;polite&quot;
+         aria-label=&quot;Product Catalog&quot;&gt;
+        &lt;!--/* Fallback / Server-side initial render if available for progressive enhancement / SEO */--&gt;
+        &lt;sly data-sly-test=&quot;${model.hasProducts}&quot;&gt;
+            &lt;article class=&quot;cmp-productlisting__card&quot;
+                     data-sly-repeat.item=&quot;${model.initialProducts}&quot;
+                     data-product-id=&quot;${item.id}&quot;&gt;
+                &lt;p class=&quot;cmp-productlisting__card-line cmp-productlisting__card-id&quot;&gt;Product ID: ${item.id}&lt;/p&gt;
+                &lt;p class=&quot;cmp-productlisting__card-line cmp-productlisting__card-name&quot;&gt;Product Name :${item.name}&lt;/p&gt;
+                &lt;p class=&quot;cmp-productlisting__card-line cmp-productlisting__card-price&quot;&gt;Price : ${item.formattedPrice}&lt;/p&gt;
+            &lt;/article&gt;
+        &lt;/sly&gt;
+    &lt;/div&gt;
+
+    &lt;!--/* Empty State */--&gt;
+    &lt;div class=&quot;cmp-productlisting__status cmp-productlisting__status--empty&quot; style=&quot;display: none;&quot;&gt;
+        &lt;p&gt;No products available at this time.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-7">
+        <div class="code-header">
+            <span class="code-filename">_cq_dialog/.content.xml</span>
+            <button class="copy-btn" onclick="copyCode('code-block-7')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-7">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;jcr:root xmlns:sling=&quot;http://sling.apache.org/jcr/sling/1.0&quot;
+    xmlns:cq=&quot;http://www.day.com/jcr/cq/1.0&quot;
+    xmlns:jcr=&quot;http://www.jcp.org/jcr/1.0&quot;
+    xmlns:nt=&quot;http://www.jcp.org/jcr/nt/1.0&quot;
+    jcr:primaryType=&quot;nt:unstructured&quot;
+    jcr:title=&quot;Product Listing Properties&quot;
+    sling:resourceType=&quot;cq/gui/components/coral/common/tabs/container&quot;&gt;
+    &lt;items jcr:primaryType=&quot;nt:unstructured&quot;&gt;
+        &lt;tabs jcr:primaryType=&quot;nt:unstructured&quot;
+            sling:resourceType=&quot;granite/ui/components/coral/foundation/tabs&quot;&gt;
+            &lt;items jcr:primaryType=&quot;nt:unstructured&quot;&gt;
+                &lt;layoutTab jcr:primaryType=&quot;nt:unstructured&quot;
+                    jcr:title=&quot;Grid Layout &amp;amp; Content&quot;
+                    sling:resourceType=&quot;granite/ui/components/coral/foundation/container&quot;
+                    margin=&quot;{Boolean}true&quot;&gt;
+                    &lt;items jcr:primaryType=&quot;nt:unstructured&quot;&gt;
+                        &lt;columns jcr:primaryType=&quot;nt:unstructured&quot;
+                            sling:resourceType=&quot;granite/ui/components/coral/foundation/fixedcolumns&quot;
+                            margin=&quot;{Boolean}true&quot;&gt;
+                            &lt;items jcr:primaryType=&quot;nt:unstructured&quot;&gt;
+                                &lt;column jcr:primaryType=&quot;nt:unstructured&quot;
+                                    sling:resourceType=&quot;granite/ui/components/coral/foundation/container&quot;&gt;
+                                    &lt;items jcr:primaryType=&quot;nt:unstructured&quot;&gt;
+                                        &lt;title jcr:primaryType=&quot;nt:unstructured&quot;
+                                            sling:resourceType=&quot;granite/ui/components/coral/foundation/form/textfield&quot;
+                                            fieldLabel=&quot;Component Title&quot;
+                                            fieldDescription=&quot;Heading displayed above the product grid&quot;
+                                            name=&quot;./title&quot;
+                                            value=&quot;Product Listing Page using Html/CSS/JS&quot;/&gt;
+                                        &lt;gridPreset jcr:primaryType=&quot;nt:unstructured&quot;
+                                            sling:resourceType=&quot;granite/ui/components/coral/foundation/form/select&quot;
+                                            fieldLabel=&quot;Grid Layout Preset&quot;
+                                            fieldDescription=&quot;Select the grid structure (3x3 blocks by default)&quot;
+                                            name=&quot;./gridPreset&quot;&gt;
+                                            &lt;items jcr:primaryType=&quot;nt:unstructured&quot;&gt;
+                                                &lt;preset3x3 jcr:primaryType=&quot;nt:unstructured&quot;
+                                                    text=&quot;3x3 Blocks (9 Products - Default)&quot;
+                                                    value=&quot;3x3&quot;
+                                                    selected=&quot;{Boolean}true&quot;/&gt;
+                                                &lt;preset2x3 jcr:primaryType=&quot;nt:unstructured&quot;
+                                                    text=&quot;3 Columns x 2 Rows (6 Products)&quot;
+                                                    value=&quot;3x2&quot;/&gt;
+                                                &lt;preset2x2 jcr:primaryType=&quot;nt:unstructured&quot;
+                                                    text=&quot;2 Columns x 2 Rows (4 Products)&quot;
+                                                    value=&quot;2x2&quot;/&gt;
+                                                &lt;preset1x3 jcr:primaryType=&quot;nt:unstructured&quot;
+                                                    text=&quot;3 Columns x 1 Row (3 Products)&quot;
+                                                    value=&quot;3x1&quot;/&gt;
+                                                &lt;presetCustom jcr:primaryType=&quot;nt:unstructured&quot;
+                                                    text=&quot;Custom Columns &amp;amp; Limit&quot;
+                                                    value=&quot;custom&quot;/&gt;
+                                            &lt;/items&gt;
+                                        &lt;/gridPreset&gt;
+                                        &lt;columnsCount jcr:primaryType=&quot;nt:unstructured&quot;
+                                            sling:resourceType=&quot;granite/ui/components/coral/foundation/form/numberfield&quot;
+                                            fieldLabel=&quot;Number of Columns&quot;
+                                            fieldDescription=&quot;Columns per row in grid (default 3)&quot;
+                                            name=&quot;./columns&quot;
+                                            value=&quot;3&quot;
+                                            min=&quot;{Long}1&quot;
+                                            max=&quot;{Long}6&quot;/&gt;
+                                        &lt;limit jcr:primaryType=&quot;nt:unstructured&quot;
+                                            sling:resourceType=&quot;granite/ui/components/coral/foundation/form/numberfield&quot;
+                                            fieldLabel=&quot;Total Products to Display&quot;
+                                            fieldDescription=&quot;Total number of product blocks to render (default 9)&quot;
+                                            name=&quot;./limit&quot;
+                                            value=&quot;9&quot;
+                                            min=&quot;{Long}1&quot;
+                                            max=&quot;{Long}50&quot;/&gt;
+                                    &lt;/items&gt;
+                                &lt;/column&gt;
+                            &lt;/items&gt;
+                        &lt;/columns&gt;
+                    &lt;/items&gt;
+                &lt;/layoutTab&gt;
+                &lt;dataSourceTab jcr:primaryType=&quot;nt:unstructured&quot;
+                    jcr:title=&quot;Data Source &amp;amp; API&quot;
+                    sling:resourceType=&quot;granite/ui/components/coral/foundation/container&quot;
+                    margin=&quot;{Boolean}true&quot;&gt;
+                    &lt;items jcr:primaryType=&quot;nt:unstructured&quot;&gt;
+                        &lt;columns jcr:primaryType=&quot;nt:unstructured&quot;
+                            sling:resourceType=&quot;granite/ui/components/coral/foundation/fixedcolumns&quot;
+                            margin=&quot;{Boolean}true&quot;&gt;
+                            &lt;items jcr:primaryType=&quot;nt:unstructured&quot;&gt;
+                                &lt;column jcr:primaryType=&quot;nt:unstructured&quot;
+                                    sling:resourceType=&quot;granite/ui/components/coral/foundation/container&quot;&gt;
+                                    &lt;items jcr:primaryType=&quot;nt:unstructured&quot;&gt;
+                                        &lt;sourceMode jcr:primaryType=&quot;nt:unstructured&quot;
+                                            sling:resourceType=&quot;granite/ui/components/coral/foundation/form/select&quot;
+                                            fieldLabel=&quot;Data Source Strategy&quot;
+                                            fieldDescription=&quot;Select whether to use backend OSGi service endpoint or a custom URL&quot;
+                                            name=&quot;./sourceMode&quot;&gt;
+                                            &lt;items jcr:primaryType=&quot;nt:unstructured&quot;&gt;
+                                                &lt;osgiEndpoint jcr:primaryType=&quot;nt:unstructured&quot;
+                                                    text=&quot;Backend OSGi Service / Servlet (/bin/wknd/products)&quot;
+                                                    value=&quot;osgi&quot;
+                                                    selected=&quot;{Boolean}true&quot;/&gt;
+                                                &lt;customUrl jcr:primaryType=&quot;nt:unstructured&quot;
+                                                    text=&quot;Custom External REST API URL&quot;
+                                                    value=&quot;custom&quot;/&gt;
+                                            &lt;/items&gt;
+                                        &lt;/sourceMode&gt;
+                                        &lt;apiEndpoint jcr:primaryType=&quot;nt:unstructured&quot;
+                                            sling:resourceType=&quot;granite/ui/components/coral/foundation/form/textfield&quot;
+                                            fieldLabel=&quot;Custom API Endpoint URL&quot;
+                                            fieldDescription=&quot;Used when &#x27;Custom External REST API URL&#x27; is selected&quot;
+                                            name=&quot;./apiEndpoint&quot;
+                                            value=&quot;/bin/wknd/products&quot;/&gt;
+                                    &lt;/items&gt;
+                                &lt;/column&gt;
+                            &lt;/items&gt;
+                        &lt;/columns&gt;
+                    &lt;/items&gt;
+                &lt;/dataSourceTab&gt;
+            &lt;/items&gt;
+        &lt;/tabs&gt;
+    &lt;/items&gt;
+&lt;/jcr:root&gt;
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-8">
+        <div class="code-header">
+            <span class="code-filename">productlisting.css</span>
+            <button class="copy-btn" onclick="copyCode('code-block-8')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-8">/**
+ * WKND Product Listing Component Styles
+ * Follows BEM methodology with responsive CSS Grid.
+ */
+
+.cmp-productlisting {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif;
+    color: #222222;
+    box-sizing: border-box;
+}
+
+.cmp-productlisting *,
+.cmp-productlisting *::before,
+.cmp-productlisting *::after {
+    box-sizing: inherit;
+}
+
+/* Header &amp; Title */
+.cmp-productlisting__header {
+    margin-bottom: 36px;
+    text-align: left;
+}
+
+.cmp-productlisting__title {
+    font-size: 32px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+/* 3x3 Grid Container */
+.cmp-productlisting__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-bottom: 40px;
+}
+
+/* Individual Product Block / Card */
+.cmp-productlisting__card {
+    background-color: #135d79;
+    border: 2px solid #0f4d64;
+    border-radius: 2px;
+    height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 24px 20px;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    cursor: default;
+    user-select: none;
+}
+
+.cmp-productlisting__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(19, 93, 121, 0.28);
+    background-color: #166989;
+}
+
+/* Card Text Lines */
+.cmp-productlisting__card-line {
+    margin: 4px 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #ffffff;
+    letter-spacing: 0.2px;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+.cmp-productlisting__card-id {
+    font-weight: 400;
+}
+
+.cmp-productlisting__card-name {
+    font-weight: 500;
+}
+
+.cmp-productlisting__card-price {
+    font-weight: 400;
+}
+
+/* Status: Error &amp; Empty */
+.cmp-productlisting__status {
+    padding: 24px;
+    border-radius: 4px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.cmp-productlisting__status--error {
+    background-color: #fff2f2;
+    border: 1px solid #ffcccc;
+    color: #c92a2a;
+}
+
+.cmp-productlisting__status--empty {
+    background-color: #f8f9fa;
+    border: 1px dashed #dee2e6;
+    color: #6c757d;
+}
+
+.cmp-productlisting__retry-btn {
+    margin-top: 12px;
+    padding: 8px 20px;
+    background-color: #135d79;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.15s ease;
+}
+
+.cmp-productlisting__retry-btn:hover {
+    background-color: #0d475d;
+}
+
+/* Loading Skeleton Shimmer */
+.cmp-productlisting__card--skeleton {
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+    box-shadow: none;
+    cursor: wait;
+}
+
+.cmp-productlisting__skeleton-line {
+    width: 80%;
+    height: 14px;
+    margin: 8px 0;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #dee2e6 25%, #f1f3f5 50%, #dee2e6 75%);
+    background-size: 200% 100%;
+    animation: cmp-skeleton-pulse 1.5s infinite ease-in-out;
+}
+
+.cmp-productlisting__skeleton-line--short {
+    width: 45%;
+}
+
+.cmp-productlisting__skeleton-line--medium {
+    width: 60%;
+}
+
+@keyframes cmp-skeleton-pulse {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Responsive Breakpoints */
+@media screen and (max-width: 992px) {
+    .cmp-productlisting__grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 24px;
+    }
+
+    .cmp-productlisting__title {
+        font-size: 26px;
+    }
+
+    .cmp-productlisting__card {
+        height: 200px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .cmp-productlisting__grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+
+    .cmp-productlisting__title {
+        font-size: 22px;
+    }
+
+    .cmp-productlisting__card {
+        height: 180px;
+        padding: 16px;
+    }
+
+    .cmp-productlisting__card-line {
+        font-size: 15px;
+    }
+}
+
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-9">
+        <div class="code-header">
+            <span class="code-filename">productlisting.js</span>
+            <button class="copy-btn" onclick="copyCode('code-block-9')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-9">/**
+ * WKND Product Listing Component
+ * Asynchronously fetches and renders product blocks into a 3x3 responsive grid.
+ */
+(function () {
+    &quot;use strict&quot;;
+
+    class ProductListing {
+        constructor(element) {
+            this.container = element;
+            this.endpoint = element.dataset.endpoint || &quot;/bin/wknd/products&quot;;
+            this.limit = parseInt(element.dataset.limit, 10) || 9;
+            this.grid = element.querySelector(&quot;.cmp-productlisting__grid--active&quot;);
+            this.loading = element.querySelector(&quot;.cmp-productlisting__loading&quot;);
+            this.errorContainer = element.querySelector(&quot;.cmp-productlisting__status--error&quot;);
+            this.errorMessage = element.querySelector(&quot;.cmp-productlisting__status-message&quot;);
+            this.emptyContainer = element.querySelector(&quot;.cmp-productlisting__status--empty&quot;);
+            this.retryBtn = element.querySelector(&quot;.cmp-productlisting__retry-btn&quot;);
+
+            this.init();
+        }
+
+        init() {
+            if (this.retryBtn) {
+                this.retryBtn.addEventListener(&quot;click&quot;, () =&gt; this.fetchProducts());
+            }
+
+            this.fetchProducts();
+        }
+
+        /**
+         * Fetch product data from the backend servlet/service.
+         */
+        async fetchProducts() {
+            this.showLoading();
+
+            const url = new URL(this.endpoint, window.location.origin);
+            url.searchParams.set(&quot;limit&quot;, this.limit);
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() =&gt; controller.abort(), 6000);
+
+            try {
+                const response = await fetch(url.toString(), {
+                    method: &quot;GET&quot;,
+                    headers: {
+                        &quot;Accept&quot;: &quot;application/json&quot;
+                    },
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (!Array.isArray(data)) {
+                    throw new Error(&quot;Invalid response format: Expected JSON array of products.&quot;);
+                }
+
+                this.renderProducts(data);
+            } catch (error) {
+                clearTimeout(timeoutId);
+                console.error(&quot;[ProductListing] Fetch error:&quot;, error);
+                this.showError(error.name === &quot;AbortError&quot;
+                    ? &quot;Request timed out while loading products. Please try again.&quot;
+                    : &quot;Unable to load products. Please check the backend connection.&quot;);
+            }
+        }
+
+        /**
+         * Safely render product cards to prevent XSS.
+         */
+        renderProducts(products) {
+            this.hideStatus();
+
+            if (!this.grid) {
+                return;
+            }
+
+            // Slice to exact limit (e.g. 9 for 3x3 blocks)
+            const displayProducts = products.slice(0, this.limit);
+
+            if (displayProducts.length === 0) {
+                this.showEmpty();
+                return;
+            }
+
+            // Clear previous cards
+            this.grid.innerHTML = &quot;&quot;;
+
+            const fragment = document.createDocumentFragment();
+
+            displayProducts.forEach((item) =&gt; {
+                const card = document.createElement(&quot;article&quot;);
+                card.className = &quot;cmp-productlisting__card&quot;;
+                card.setAttribute(&quot;tabindex&quot;, &quot;0&quot;);
+                card.setAttribute(&quot;role&quot;, &quot;article&quot;);
+                card.setAttribute(&quot;aria-label&quot;, item.name || &quot;Product item&quot;);
+
+                // Line 1: Product ID
+                const idLine = document.createElement(&quot;p&quot;);
+                idLine.className = &quot;cmp-productlisting__card-line cmp-productlisting__card-id&quot;;
+                idLine.textContent = `Product ID: ${item.id !== undefined ? item.id : &quot;&quot;}`;
+
+                // Line 2: Product Name
+                const nameLine = document.createElement(&quot;p&quot;);
+                nameLine.className = &quot;cmp-productlisting__card-line cmp-productlisting__card-name&quot;;
+                nameLine.textContent = `Product Name :${item.name || &quot;&quot;}`;
+
+                // Line 3: Price
+                const priceLine = document.createElement(&quot;p&quot;);
+                priceLine.className = &quot;cmp-productlisting__card-line cmp-productlisting__card-price&quot;;
+                const priceVal = typeof item.price === &quot;number&quot; ? item.price.toFixed(2) : (item.price || &quot;&quot;);
+                const currencyVal = item.currency || &quot;&quot;;
+                priceLine.textContent = `Price : ${priceVal}${currencyVal}`;
+
+                card.appendChild(idLine);
+                card.appendChild(nameLine);
+                card.appendChild(priceLine);
+
+                fragment.appendChild(card);
+            });
+
+            this.grid.appendChild(fragment);
+            this.grid.style.display = &quot;grid&quot;;
+        }
+
+        showLoading() {
+            if (this.loading) this.loading.style.display = &quot;block&quot;;
+            if (this.grid) this.grid.style.display = &quot;none&quot;;
+            if (this.errorContainer) this.errorContainer.style.display = &quot;none&quot;;
+            if (this.emptyContainer) this.emptyContainer.style.display = &quot;none&quot;;
+        }
+
+        hideStatus() {
+            if (this.loading) this.loading.style.display = &quot;none&quot;;
+            if (this.errorContainer) this.errorContainer.style.display = &quot;none&quot;;
+            if (this.emptyContainer) this.emptyContainer.style.display = &quot;none&quot;;
+        }
+
+        showError(message) {
+            if (this.loading) this.loading.style.display = &quot;none&quot;;
+            if (this.grid) this.grid.style.display = &quot;none&quot;;
+            if (this.emptyContainer) this.emptyContainer.style.display = &quot;none&quot;;
+
+            if (this.errorContainer) {
+                if (this.errorMessage) {
+                    this.errorMessage.textContent = message;
+                }
+                this.errorContainer.style.display = &quot;block&quot;;
+            }
+        }
+
+        showEmpty() {
+            if (this.loading) this.loading.style.display = &quot;none&quot;;
+            if (this.grid) this.grid.style.display = &quot;none&quot;;
+            if (this.errorContainer) this.errorContainer.style.display = &quot;none&quot;;
+            if (this.emptyContainer) this.emptyContainer.style.display = &quot;block&quot;;
+        }
+    }
+
+    /**
+     * Auto-initialize all component instances on DOM ready.
+     */
+    function initAll() {
+        const elements = document.querySelectorAll(&#x27;[data-cmp-is=&quot;productlisting&quot;]&#x27;);
+        elements.forEach((el) =&gt; {
+            if (!el.__productListingInitialized) {
+                el.__productListingInitialized = new ProductListing(el);
+            }
+        });
+    }
+
+    if (document.readyState === &quot;loading&quot;) {
+        document.addEventListener(&quot;DOMContentLoaded&quot;, initAll);
+    } else {
+        initAll();
+    }
+})();
+
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-10">
+        <div class="code-header">
+            <span class="code-filename">ProductListingServiceTest.java</span>
+            <button class="copy-btn" onclick="copyCode('code-block-10')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-10">package com.adobe.aem.guides.wknd.core.services;
+
+import java.lang.annotation.Annotation;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.adobe.aem.guides.wknd.core.dto.Product;
+import com.adobe.aem.guides.wknd.core.services.config.ProductListingServiceConfig;
+import com.adobe.aem.guides.wknd.core.services.impl.ProductListingServiceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ProductListingServiceTest {
+
+    private ProductListingServiceImpl fixture;
+
+    @BeforeEach
+    void setUp() {
+        fixture = new ProductListingServiceImpl();
+    }
+
+    private ProductListingServiceConfig createConfig(String endpoint, int defaultLimit) {
+        return new ProductListingServiceConfig() {
+            @Override
+            public Class&lt;? extends Annotation&gt; annotationType() {
+                return ProductListingServiceConfig.class;
+            }
+
+            @Override
+            public String apiEndpointUrl() {
+                return endpoint;
+            }
+
+            @Override
+            public int defaultLimit() {
+                return defaultLimit;
+            }
+
+            @Override
+            public int connectionTimeoutMs() {
+                return 3000;
+            }
+
+            @Override
+            public int readTimeoutMs() {
+                return 3000;
+            }
+        };
+    }
+
+    @Test
+    void testGetDefaultProductsReturns9For3x3Grid() {
+        fixture.activate(createConfig(&quot;&quot;, 9));
+        List&lt;Product&gt; products = fixture.getProducts();
+
+        assertNotNull(products);
+        assertEquals(9, products.size(), &quot;Should return exactly 9 products for 3x3 grid&quot;);
+
+        Product first = products.get(0);
+        assertEquals(1L, first.getId());
+        assertEquals(&quot;Thai Peanut Noodles&quot;, first.getName());
+        assertEquals(4.99, first.getPrice());
+        assertEquals(&quot;USD&quot;, first.getCurrency());
+        assertEquals(&quot;http://dummyimage.com/189x105.png/ff4444/ffffff&quot;, first.getImageUrl());
+        assertEquals(&quot;4.99USD&quot;, first.getFormattedPrice());
+    }
+
+    @Test
+    void testGetProductsCustomLimit() {
+        fixture.activate(createConfig(&quot;&quot;, 9));
+        List&lt;Product&gt; products = fixture.getProducts(3);
+
+        assertNotNull(products);
+        assertEquals(3, products.size());
+    }
+
+    @Test
+    void testGetProductsJsonSerialization() {
+        fixture.activate(createConfig(&quot;&quot;, 9));
+        String json = fixture.getProductsAsJson(9);
+
+        assertNotNull(json);
+        assertTrue(json.contains(&quot;\&quot;id\&quot;:1&quot;));
+        assertTrue(json.contains(&quot;\&quot;name\&quot;:\&quot;Thai Peanut Noodles\&quot;&quot;));
+        assertTrue(json.contains(&quot;\&quot;price\&quot;:4.99&quot;));
+        assertTrue(json.contains(&quot;\&quot;currency\&quot;:\&quot;USD\&quot;&quot;));
+        assertTrue(json.contains(&quot;\&quot;id\&quot;:9&quot;));
+        assertFalse(json.contains(&quot;\&quot;id\&quot;:10&quot;), &quot;10th product should be excluded when limit is 9&quot;);
+    }
+
+    @Test
+    void testFallbackWhenExternalEndpointIsInvalid() {
+        fixture.activate(createConfig(&quot;http://invalid-endpoint-domain-1234567.test/api&quot;, 9));
+        List&lt;Product&gt; products = fixture.getProducts(9);
+
+        assertNotNull(products);
+        assertEquals(9, products.size(), &quot;Should fallback to seed catalog on network error&quot;);
+    }
+
+    @Test
+    void testProductDtoEqualsAndHashCode() {
+        Product p1 = new Product(1L, &quot;Item&quot;, 10.0, &quot;USD&quot;, &quot;http://image.png&quot;);
+        Product p2 = new Product(1L, &quot;Item&quot;, 10.0, &quot;USD&quot;, &quot;http://image.png&quot;);
+        Product p3 = new Product(2L, &quot;Item 2&quot;, 20.0, &quot;EUR&quot;, &quot;http://image2.png&quot;);
+
+        assertEquals(p1, p2);
+        assertEquals(p1.hashCode(), p2.hashCode());
+        assertNotEquals(p1, p3);
+        assertTrue(p1.toString().contains(&quot;id=1&quot;));
+    }
+}
+
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-11">
+        <div class="code-header">
+            <span class="code-filename">ProductListingServletTest.java</span>
+            <button class="copy-btn" onclick="copyCode('code-block-11')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-11">package com.adobe.aem.guides.wknd.core.servlets;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
+import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import com.adobe.aem.guides.wknd.core.services.ProductListingService;
+import com.adobe.aem.guides.wknd.core.services.impl.ProductListingServiceImpl;
+
+import io.wcm.testing.mock.aem.junit5.AemContext;
+import io.wcm.testing.mock.aem.junit5.AemContextExtension;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(AemContextExtension.class)
+class ProductListingServletTest {
+
+    private ProductListingServlet servlet;
+
+    @BeforeEach
+    void setUp(AemContext context) {
+        context.registerInjectActivateService(new ProductListingServiceImpl());
+        servlet = context.registerInjectActivateService(new ProductListingServlet());
+    }
+
+    @Test
+    void testDoGetDefaultLimit(AemContext context) throws ServletException, IOException {
+        MockSlingHttpServletRequest request = context.request();
+        MockSlingHttpServletResponse response = context.response();
+
+        servlet.doGet(request, response);
+
+        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+        assertEquals(&quot;application/json;charset=UTF-8&quot;, response.getContentType());
+        String output = response.getOutputAsString();
+        assertNotNull(output);
+        assertTrue(output.contains(&quot;\&quot;id\&quot;:1&quot;));
+        assertTrue(output.contains(&quot;\&quot;name\&quot;:\&quot;Thai Peanut Noodles\&quot;&quot;));
+        assertTrue(output.contains(&quot;\&quot;id\&quot;:9&quot;));
+        assertFalse(output.contains(&quot;\&quot;id\&quot;:10&quot;), &quot;By default, limit=9 so 10th item is omitted&quot;);
+    }
+
+    @Test
+    void testDoGetWithCustomLimit(AemContext context) throws ServletException, IOException {
+        MockSlingHttpServletRequest request = context.request();
+        MockSlingHttpServletResponse response = context.response();
+        request.addRequestParameter(&quot;limit&quot;, &quot;3&quot;);
+
+        servlet.doGet(request, response);
+
+        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+        String output = response.getOutputAsString();
+        assertNotNull(output);
+        assertTrue(output.contains(&quot;\&quot;id\&quot;:1&quot;));
+        assertTrue(output.contains(&quot;\&quot;id\&quot;:3&quot;));
+        assertFalse(output.contains(&quot;\&quot;id\&quot;:4&quot;));
+    }
+
+    @Test
+    void testDoGetWithInvalidLimitParam(AemContext context) throws ServletException, IOException {
+        MockSlingHttpServletRequest request = context.request();
+        MockSlingHttpServletResponse response = context.response();
+        request.addRequestParameter(&quot;limit&quot;, &quot;abc&quot;);
+
+        servlet.doGet(request, response);
+
+        assertEquals(HttpServletResponse.SC_BAD_REQUEST, response.getStatus());
+        assertTrue(response.getOutputAsString().contains(&quot;Invalid &#x27;limit&#x27; query parameter&quot;));
+    }
+}
+
+</code></pre>
+    </div>
+    
+    <div class="code-tab-panel " id="tab-12">
+        <div class="code-header">
+            <span class="code-filename">ProductListingModelTest.java</span>
+            <button class="copy-btn" onclick="copyCode('code-block-12')">Copy Code</button>
+        </div>
+        <pre><code id="code-block-12">package com.adobe.aem.guides.wknd.core.models;
+
+import org.apache.sling.api.resource.Resource;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import com.adobe.aem.guides.wknd.core.services.impl.ProductListingServiceImpl;
+import com.adobe.aem.guides.wknd.core.testcontext.AppAemContext;
+import com.day.cq.wcm.api.Page;
+
+import io.wcm.testing.mock.aem.junit5.AemContext;
+import io.wcm.testing.mock.aem.junit5.AemContextExtension;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(AemContextExtension.class)
+class ProductListingModelTest {
+
+    private final AemContext context = AppAemContext.newAemContext();
+
+    private Page page;
+
+    @BeforeEach
+    void setUp() {
+        context.addModelsForClasses(ProductListingModel.class);
+        context.registerInjectActivateService(new ProductListingServiceImpl());
+        page = context.create().page(&quot;/content/wknd/us/en/products&quot;);
+    }
+
+    @Test
+    void testModelWithDefaultProperties() {
+        Resource resource = context.create().resource(page, &quot;productlisting&quot;,
+                &quot;sling:resourceType&quot;, &quot;wknd/components/productlisting&quot;);
+
+        context.currentResource(resource);
+        ProductListingModel model = resource.adaptTo(ProductListingModel.class);
+
+        assertNotNull(model);
+        assertEquals(&quot;Product Listing Page using Html/CSS/JS&quot;, model.getTitle());
+        assertEquals(&quot;/bin/wknd/products&quot;, model.getApiEndpoint());
+        assertEquals(9, model.getLimit());
+        assertEquals(3, model.getColumns());
+        assertTrue(model.hasProducts());
+        assertEquals(9, model.getInitialProducts().size());
+        assertEquals(&quot;grid-template-columns: repeat(3, 1fr);&quot;, model.getGridStyle());
+    }
+
+    @Test
+    void testModelWithPreset2x2() {
+        Resource resource = context.create().resource(page, &quot;productlisting-2x2&quot;,
+                &quot;sling:resourceType&quot;, &quot;wknd/components/productlisting&quot;,
+                &quot;gridPreset&quot;, &quot;2x2&quot;);
+
+        context.currentResource(resource);
+        ProductListingModel model = resource.adaptTo(ProductListingModel.class);
+
+        assertNotNull(model);
+        assertEquals(4, model.getLimit());
+        assertEquals(2, model.getColumns());
+        assertEquals(&quot;grid-template-columns: repeat(2, 1fr);&quot;, model.getGridStyle());
+    }
+
+    @Test
+    void testModelWithAuthoredCustomProperties() {
+        Resource resource = context.create().resource(page, &quot;productlisting-custom&quot;,
+                &quot;sling:resourceType&quot;, &quot;wknd/components/productlisting&quot;,
+                &quot;title&quot;, &quot;Featured Products&quot;,
+                &quot;gridPreset&quot;, &quot;custom&quot;,
+                &quot;sourceMode&quot;, &quot;custom&quot;,
+                &quot;apiEndpoint&quot;, &quot;/bin/custom/products&quot;,
+                &quot;limit&quot;, 6,
+                &quot;columns&quot;, 2);
+
+        context.currentResource(resource);
+        ProductListingModel model = resource.adaptTo(ProductListingModel.class);
+
+        assertNotNull(model);
+        assertEquals(&quot;Featured Products&quot;, model.getTitle());
+        assertEquals(&quot;/bin/custom/products&quot;, model.getApiEndpoint());
+        assertEquals(6, model.getLimit());
+        assertEquals(2, model.getColumns());
+        assertEquals(6, model.getInitialProducts().size());
+        assertEquals(&quot;grid-template-columns: repeat(2, 1fr);&quot;, model.getGridStyle());
+    }
+}
+</code></pre>
+    </div>
+    
+            </div>
+        </section>
+
+        <!-- Architecture & Technical Dossier -->
+        <section class="section-card" id="architecture-section">
+            <div class="section-header">
+                <h2>Architecture &amp; Best Practices Dossier</h2>
+            </div>
+            <table class="dossier-table">
+                <thead>
+                    <tr>
+                        <th>Layer / Question</th>
+                        <th>Enterprise Solution</th>
+                        <th>Design Rationale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Hardcoded vs. URL</strong></td>
+                        <td>Configurable OSGi Service + Resilient Seed Fallback</td>
+                        <td>Hardcoding in servlets is an anti-pattern. Relying solely on external endpoints risks downtime and CORS failures. Our OSGi Service attempts external REST calls with timeouts, gracefully falling back to seed data.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sling Servlet</strong></td>
+                        <td>Dual Registration: ResourceType + <code>/bin/wknd/products</code></td>
+                        <td>ResourceType servlets provide security and dispatcher cacheability, while direct path mounts support standalone AJAX calls.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sling Model</strong></td>
+                        <td><code>ProductListingModel</code> with JCR Injection</td>
+                        <td>Injects authored title, grid presets (3x3, 2x2, etc.), and endpoint from Coral UI 3 dialog, computing dynamic CSS styles.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security (XSS)</strong></td>
+                        <td><code>document.createElement</code> &amp; Context Escaping</td>
+                        <td>Zero raw <code>innerHTML</code> string concatenation; immune to malicious script injection in product names or prices.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Unit Testing</strong></td>
+                        <td>JUnit 5 + AEM Mocks (17 tests passing)</td>
+                        <td>Mocks OSGi service injection, request lifecycle, bounds checking, and Sling Model adaptation.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <!-- Script logic -->
+    <script>
+        const MOCK_CATALOG = [
+            {"id":1,"name":"Thai Peanut Noodles","price":4.99,"currency":"USD","image_url":"http://dummyimage.com/189x105.png/ff4444/ffffff"},
+            {"id":2,"name":"Floral Summer Dress","price":39.99,"currency":"USD","image_url":"http://dummyimage.com/222x176.png/cc0000/ffffff"},
+            {"id":3,"name":"Gardening Gloves","price":15.99,"currency":"USD","image_url":"http://dummyimage.com/178x201.png/dddddd/000000"},
+            {"id":4,"name":"Ginger Turmeric Shots","price":3.99,"currency":"USD","image_url":"http://dummyimage.com/223x181.png/ff4444/ffffff"},
+            {"id":5,"name":"Desk Organizer Set","price":29.99,"currency":"USD","image_url":"http://dummyimage.com/188x136.png/cc0000/ffffff"},
+            {"id":6,"name":"Honey Lemon Tea","price":3.29,"currency":"USD","image_url":"http://dummyimage.com/182x154.png/dddddd/000000"},
+            {"id":7,"name":"Frozen Cauliflower Rice","price":2.99,"currency":"USD","image_url":"http://dummyimage.com/118x235.png/5fa2dd/ffffff"},
+            {"id":8,"name":"Nut Mix","price":5.99,"currency":"USD","image_url":"http://dummyimage.com/117x239.png/dddddd/000000"},
+            {"id":9,"name":"Woven Storage Baskets","price":24.99,"currency":"USD","image_url":"http://dummyimage.com/235x223.png/dddddd/000000"},
+            {"id":10,"name":"Guitar Tuner","price":19.99,"currency":"USD","image_url":"http://dummyimage.com/232x130.png/5fa2dd/ffffff"}
+        ];
+
+        let simulateError = false;
+
+        const originalFetch = window.fetch;
+        window.fetch = async function(input, init) {
+            const urlStr = typeof input === 'string' ? input : input.url;
+            if (urlStr.includes('/bin/wknd/products')) {
+                await new Promise(r => setTimeout(r, 350));
+                if (simulateError) {
+                    return new Response(JSON.stringify({ error: true, message: 'Simulated 500 Internal Server Error' }), {
+                        status: 500,
+                        statusText: 'Internal Server Error',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
+                const url = new URL(urlStr, window.location.origin);
+                const limit = parseInt(url.searchParams.get('limit'), 10) || 9;
+                return new Response(JSON.stringify(MOCK_CATALOG.slice(0, limit)), {
+                    status: 200,
+                    statusText: 'OK',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+            return originalFetch.apply(this, arguments);
+        };
+    </script>
+
+    <script>
+        /**
+ * WKND Product Listing Component
+ * Asynchronously fetches and renders product blocks into a 3x3 responsive grid.
+ */
+(function () {
+    "use strict";
+
+    class ProductListing {
+        constructor(element) {
+            this.container = element;
+            this.endpoint = element.dataset.endpoint || "/bin/wknd/products";
+            this.limit = parseInt(element.dataset.limit, 10) || 9;
+            this.grid = element.querySelector(".cmp-productlisting__grid--active");
+            this.loading = element.querySelector(".cmp-productlisting__loading");
+            this.errorContainer = element.querySelector(".cmp-productlisting__status--error");
+            this.errorMessage = element.querySelector(".cmp-productlisting__status-message");
+            this.emptyContainer = element.querySelector(".cmp-productlisting__status--empty");
+            this.retryBtn = element.querySelector(".cmp-productlisting__retry-btn");
+
+            this.init();
+        }
+
+        init() {
+            if (this.retryBtn) {
+                this.retryBtn.addEventListener("click", () => this.fetchProducts());
+            }
+
+            this.fetchProducts();
+        }
+
+        /**
+         * Fetch product data from the backend servlet/service.
+         */
+        async fetchProducts() {
+            this.showLoading();
+
+            const url = new URL(this.endpoint, window.location.origin);
+            url.searchParams.set("limit", this.limit);
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+            try {
+                const response = await fetch(url.toString(), {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    },
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (!Array.isArray(data)) {
+                    throw new Error("Invalid response format: Expected JSON array of products.");
+                }
+
+                this.renderProducts(data);
+            } catch (error) {
+                clearTimeout(timeoutId);
+                console.error("[ProductListing] Fetch error:", error);
+                this.showError(error.name === "AbortError"
+                    ? "Request timed out while loading products. Please try again."
+                    : "Unable to load products. Please check the backend connection.");
+            }
+        }
+
+        /**
+         * Safely render product cards to prevent XSS.
+         */
+        renderProducts(products) {
+            this.hideStatus();
+
+            if (!this.grid) {
+                return;
+            }
+
+            // Slice to exact limit (e.g. 9 for 3x3 blocks)
+            const displayProducts = products.slice(0, this.limit);
+
+            if (displayProducts.length === 0) {
+                this.showEmpty();
+                return;
+            }
+
+            // Clear previous cards
+            this.grid.innerHTML = "";
+
+            const fragment = document.createDocumentFragment();
+
+            displayProducts.forEach((item) => {
+                const card = document.createElement("article");
+                card.className = "cmp-productlisting__card";
+                card.setAttribute("tabindex", "0");
+                card.setAttribute("role", "article");
+                card.setAttribute("aria-label", item.name || "Product item");
+
+                // Line 1: Product ID
+                const idLine = document.createElement("p");
+                idLine.className = "cmp-productlisting__card-line cmp-productlisting__card-id";
+                idLine.textContent = `Product ID: ${item.id !== undefined ? item.id : ""}`;
+
+                // Line 2: Product Name
+                const nameLine = document.createElement("p");
+                nameLine.className = "cmp-productlisting__card-line cmp-productlisting__card-name";
+                nameLine.textContent = `Product Name :${item.name || ""}`;
+
+                // Line 3: Price
+                const priceLine = document.createElement("p");
+                priceLine.className = "cmp-productlisting__card-line cmp-productlisting__card-price";
+                const priceVal = typeof item.price === "number" ? item.price.toFixed(2) : (item.price || "");
+                const currencyVal = item.currency || "";
+                priceLine.textContent = `Price : ${priceVal}${currencyVal}`;
+
+                card.appendChild(idLine);
+                card.appendChild(nameLine);
+                card.appendChild(priceLine);
+
+                fragment.appendChild(card);
+            });
+
+            this.grid.appendChild(fragment);
+            this.grid.style.display = "grid";
+        }
+
+        showLoading() {
+            if (this.loading) this.loading.style.display = "block";
+            if (this.grid) this.grid.style.display = "none";
+            if (this.errorContainer) this.errorContainer.style.display = "none";
+            if (this.emptyContainer) this.emptyContainer.style.display = "none";
+        }
+
+        hideStatus() {
+            if (this.loading) this.loading.style.display = "none";
+            if (this.errorContainer) this.errorContainer.style.display = "none";
+            if (this.emptyContainer) this.emptyContainer.style.display = "none";
+        }
+
+        showError(message) {
+            if (this.loading) this.loading.style.display = "none";
+            if (this.grid) this.grid.style.display = "none";
+            if (this.emptyContainer) this.emptyContainer.style.display = "none";
+
+            if (this.errorContainer) {
+                if (this.errorMessage) {
+                    this.errorMessage.textContent = message;
+                }
+                this.errorContainer.style.display = "block";
+            }
+        }
+
+        showEmpty() {
+            if (this.loading) this.loading.style.display = "none";
+            if (this.grid) this.grid.style.display = "none";
+            if (this.errorContainer) this.errorContainer.style.display = "none";
+            if (this.emptyContainer) this.emptyContainer.style.display = "block";
+        }
+    }
+
+    /**
+     * Auto-initialize all component instances on DOM ready.
+     */
+    function initAll() {
+        const elements = document.querySelectorAll('[data-cmp-is="productlisting"]');
+        elements.forEach((el) => {
+            if (!el.__productListingInitialized) {
+                el.__productListingInitialized = new ProductListing(el);
+            }
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initAll);
+    } else {
+        initAll();
+    }
+})();
+
+
+    </script>
+
+    <script>
+        function switchTab(index) {
+            document.querySelectorAll('.tab-nav-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.code-tab-panel').forEach((panel, i) => {
+                panel.classList.toggle('active', i === index);
+            });
+        }
+
+        function copyCode(id) {
+            const codeEl = document.getElementById(id);
+            if (!codeEl) return;
+            navigator.clipboard.writeText(codeEl.innerText).then(() => {
+                alert('Code copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy', err);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const compEl = document.querySelector('[data-cmp-is="productlisting"]');
+            const gridSelect = document.getElementById('gridSelect');
+            const reloadBtn = document.getElementById('reloadBtn');
+            const errorBtn = document.getElementById('errorBtn');
+
+            gridSelect.addEventListener('change', (e) => {
+                simulateError = false;
+                const val = parseInt(e.target.value, 10);
+                compEl.dataset.limit = val;
+                if (val === 4) {
+                    compEl.querySelector('.cmp-productlisting__grid--active').style.gridTemplateColumns = 'repeat(2, 1fr)';
+                } else {
+                    compEl.querySelector('.cmp-productlisting__grid--active').style.gridTemplateColumns = 'repeat(3, 1fr)';
+                }
+                compEl.__productListingInitialized.limit = val;
+                compEl.__productListingInitialized.fetchProducts();
+            });
+
+            reloadBtn.addEventListener('click', () => {
+                simulateError = false;
+                compEl.__productListingInitialized.fetchProducts();
+            });
+
+            errorBtn.addEventListener('click', () => {
+                simulateError = true;
+                compEl.__productListingInitialized.fetchProducts();
+            });
+        });
+    </script>
+</body>
+</html>

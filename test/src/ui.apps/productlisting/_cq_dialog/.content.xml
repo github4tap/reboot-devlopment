@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+    xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Product Listing Properties"
+    sling:resourceType="cq/gui/components/coral/common/tabs/container">
+    <items jcr:primaryType="nt:unstructured">
+        <tabs jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/tabs">
+            <items jcr:primaryType="nt:unstructured">
+                <layoutTab jcr:primaryType="nt:unstructured"
+                    jcr:title="Grid Layout &amp; Content"
+                    sling:resourceType="granite/ui/components/coral/foundation/container"
+                    margin="{Boolean}true">
+                    <items jcr:primaryType="nt:unstructured">
+                        <columns jcr:primaryType="nt:unstructured"
+                            sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                            margin="{Boolean}true">
+                            <items jcr:primaryType="nt:unstructured">
+                                <column jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/container">
+                                    <items jcr:primaryType="nt:unstructured">
+                                        <title jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                            fieldLabel="Component Title"
+                                            fieldDescription="Heading displayed above the product grid"
+                                            name="./title"
+                                            value="Product Listing Page using Html/CSS/JS"/>
+                                        <gridPreset jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                            fieldLabel="Grid Layout Preset"
+                                            fieldDescription="Select the grid structure (3x3 blocks by default)"
+                                            name="./gridPreset">
+                                            <items jcr:primaryType="nt:unstructured">
+                                                <preset3x3 jcr:primaryType="nt:unstructured"
+                                                    text="3x3 Blocks (9 Products - Default)"
+                                                    value="3x3"
+                                                    selected="{Boolean}true"/>
+                                                <preset2x3 jcr:primaryType="nt:unstructured"
+                                                    text="3 Columns x 2 Rows (6 Products)"
+                                                    value="3x2"/>
+                                                <preset2x2 jcr:primaryType="nt:unstructured"
+                                                    text="2 Columns x 2 Rows (4 Products)"
+                                                    value="2x2"/>
+                                                <preset1x3 jcr:primaryType="nt:unstructured"
+                                                    text="3 Columns x 1 Row (3 Products)"
+                                                    value="3x1"/>
+                                                <presetCustom jcr:primaryType="nt:unstructured"
+                                                    text="Custom Columns &amp; Limit"
+                                                    value="custom"/>
+                                            </items>
+                                        </gridPreset>
+                                        <columnsCount jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                            fieldLabel="Number of Columns"
+                                            fieldDescription="Columns per row in grid (default 3)"
+                                            name="./columns"
+                                            value="3"
+                                            min="{Long}1"
+                                            max="{Long}6"/>
+                                        <limit jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                            fieldLabel="Total Products to Display"
+                                            fieldDescription="Total number of product blocks to render (default 9)"
+                                            name="./limit"
+                                            value="9"
+                                            min="{Long}1"
+                                            max="{Long}50"/>
+                                    </items>
+                                </column>
+                            </items>
+                        </columns>
+                    </items>
+                </layoutTab>
+                <dataSourceTab jcr:primaryType="nt:unstructured"
+                    jcr:title="Data Source &amp; API"
+                    sling:resourceType="granite/ui/components/coral/foundation/container"
+                    margin="{Boolean}true">
+                    <items jcr:primaryType="nt:unstructured">
+                        <columns jcr:primaryType="nt:unstructured"
+                            sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                            margin="{Boolean}true">
+                            <items jcr:primaryType="nt:unstructured">
+                                <column jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/container">
+                                    <items jcr:primaryType="nt:unstructured">
+                                        <sourceMode jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                            fieldLabel="Data Source Strategy"
+                                            fieldDescription="Select whether to use backend OSGi service endpoint or a custom URL"
+                                            name="./sourceMode">
+                                            <items jcr:primaryType="nt:unstructured">
+                                                <osgiEndpoint jcr:primaryType="nt:unstructured"
+                                                    text="Backend OSGi Service / Servlet (/bin/wknd/products)"
+                                                    value="osgi"
+                                                    selected="{Boolean}true"/>
+                                                <customUrl jcr:primaryType="nt:unstructured"
+                                                    text="Custom External REST API URL"
+                                                    value="custom"/>
+                                            </items>
+                                        </sourceMode>
+                                        <apiEndpoint jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                            fieldLabel="Custom API Endpoint URL"
+                                            fieldDescription="Used when 'Custom External REST API URL' is selected"
+                                            name="./apiEndpoint"
+                                            value="/bin/wknd/products"/>
+                                    </items>
+                                </column>
+                            </items>
+                        </columns>
+                    </items>
+                </dataSourceTab>
+            </items>
+        </tabs>
+    </items>
+</jcr:root>
