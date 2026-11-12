@@ -1,6 +1,6 @@
 # AEM Product Listing Component - Technical Evaluation & Interview Submission
 
-> **Candidate Technical Assessment Submission**  
+> **Tapasa Technical Assessment Submission**  
 > **Component:** Product Listing 3x3 Grid Component (`wknd/components/productlisting`)  
 > **Platform:** Adobe Experience Manager (AEM as a Cloud Service / AEM 6.5+)  
 > **Stack:** Java 11/21, OSGi R7, Apache Sling Models, HTL (Sightly), Coral UI 3 Dialogs, CSS Grid (BEM), Vanilla ES6 JS, JUnit 5 + AEM Mocks.
