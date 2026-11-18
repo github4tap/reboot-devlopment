@@ -1,0 +1,239 @@
+/**
+ * WKND High-Performance Carousel Component Styles
+ * Hardware-accelerated transitions, aspect-ratio CLS reservation, accessible focus states.
+ */
+
+.cmp-carousel-wrapper {
+    width: 100%;
+    margin: 24px 0;
+    box-sizing: border-box;
+}
+
+.cmp-carousel {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background-color: #0d1b2a;
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Aspect-ratio container prevents Cumulative Layout Shift (CLS) */
+.cmp-carousel__content {
+    position: relative;
+    width: 100%;
+    min-height: 280px;
+    max-height: 640px;
+}
+
+/* Individual Slide Item */
+.cmp-carousel__item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.02);
+    transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 0.6s cubic-bezier(0.25, 1, 0.5, 1),
+                visibility 0.6s;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.cmp-carousel__item--active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    pointer-events: auto;
+    z-index: 2;
+}
+
+/* Image wrapper and object-fit */
+.cmp-carousel__image-wrapper {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.cmp-carousel__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+/* Caption and CTA Overlay */
+.cmp-carousel__caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 60px 48px 36px;
+    background: linear-gradient(to top, rgba(13, 27, 42, 0.88) 0%, rgba(13, 27, 42, 0.5) 60%, transparent 100%);
+    color: #ffffff;
+    z-index: 3;
+}
+
+.cmp-carousel__caption-content {
+    max-width: 800px;
+}
+
+.cmp-carousel__title {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 10px 0;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.cmp-carousel__description {
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0 0 18px 0;
+    color: #e0e1dd;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.cmp-carousel__action-btn {
+    display: inline-block;
+    background-color: #ffb703;
+    color: #0d1b2a;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 22px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.cmp-carousel__action-btn:hover,
+.cmp-carousel__action-btn:focus-visible {
+    background-color: #fb8500;
+    transform: translateY(-2px);
+    color: #000000;
+}
+
+/* Arrow Navigation Buttons */
+.cmp-carousel__actions {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    pointer-events: none;
+    z-index: 4;
+}
+
+.cmp-carousel__action {
+    background: rgba(13, 27, 42, 0.55);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background 0.2s, transform 0.2s;
+    font-size: 20px;
+}
+
+.cmp-carousel__action:hover {
+    background: rgba(13, 27, 42, 0.9);
+    transform: scale(1.08);
+}
+
+.cmp-carousel__action:focus-visible {
+    outline: 3px solid #ffb703;
+    outline-offset: 2px;
+}
+
+.cmp-carousel__action--toggle-pause {
+    position: absolute;
+    bottom: -180px;
+    right: 24px;
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+}
+
+/* Indicators (Dots) */
+.cmp-carousel__indicators {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    list-style: none;
+    margin: 0;
+    padding: 6px 14px;
+    background: rgba(13, 27, 42, 0.45);
+    backdrop-filter: blur(4px);
+    border-radius: 20px;
+    z-index: 4;
+}
+
+.cmp-carousel__indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.cmp-carousel__indicator:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.cmp-carousel__indicator--active {
+    width: 28px;
+    border-radius: 8px;
+    background-color: #ffb703;
+}
+
+.cmp-carousel__indicator:focus-visible {
+    outline: 2px solid #ffb703;
+    outline-offset: 2px;
+}
+
+/* Reduced Motion for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .cmp-carousel__item {
+        transition: none !important;
+        transform: none !important;
+    }
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+    .cmp-carousel__title {
+        font-size: 22px;
+    }
+
+    .cmp-carousel__description {
+        font-size: 14px;
+    }
+
+    .cmp-carousel__caption {
+        padding: 40px 24px 24px;
+    }
+
+    .cmp-carousel__action {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+}
