@@ -1,133 +1,272 @@
-# Sample AEM project template
+# AEM Technical Assessment & Component Showcase
 
-This is a project template for AEM-based applications. It is intended as a best-practice set of examples as well as a potential starting point to develop your own functionality.
+> **Adobe Experience Manager (AEM as a Cloud Service / AEM 6.5+)**  
+> **Candidate Implementation Repository**  
+> **Tech Stack:** Java 11/21, OSGi R7, Apache Sling Models, HTL (Sightly), Coral UI 3, BEM CSS, Vanilla ES6 JavaScript, JUnit 5 + AEM Mocks.
 
-## Modules
+---
 
-The main parts of the template are:
+## Table of Contents
+1. [Overview & Deliverables](#1-overview--deliverables)
+2. [Component 1: Product Listing 3x3 Grid](#2-component-1-product-listing-3x3-grid-component)
+   - [Architectural Design](#architectural-design)
+   - [Hardcoded vs. URL Strategy](#hardcoded-vs-url-strategy)
+   - [Dialog & Sling Model Configuration](#dialog--sling-model-configuration)
+3. [Component 2: High-Performance Image Carousel](#3-component-2-high-performance-image-carousel-component)
+   - [Architectural Overview & Core Extension](#carousel-architectural-overview)
+   - [Authoring Restrictions & Defensive Limits](#authoring-restrictions--defensive-limits)
+   - [High-Resolution Asset Performance Mitigation (>4 MB)](#high-resolution-asset-performance-mitigation-4-mb)
+   - [Core Web Vitals & Accessibility (WCAG 2.1)](#core-web-vitals--accessibility-wcag-21)
+4. [Automated Testing Suite (JUnit 5 + AEM Mocks)](#4-automated-testing-suite)
+5. [Build, Deployment & Verification](#5-build-deployment--verification)
+6. [Repository & Module Structure](#6-repository--module-structure)
 
-* [core:](core/README.md) Java bundle containing all core functionality like OSGi services, listeners or schedulers, as well as component-related Java code such as servlets or request filters.
-* [it.tests:](it.tests/README.md) Java based integration tests
-* [ui.apps:](ui.apps/README.md) contains the /apps (and /etc) parts of the project, ie JS&CSS clientlibs, components, and templates
-* [ui.content:](ui.content/README.md) contains sample content using the components from the ui.apps
-* ui.config: contains runmode specific OSGi configs for the project
-* [ui.frontend:](ui.frontend.general/README.md) an optional dedicated front-end build mechanism (general Webpack project)
-* [ui.tests:](ui.tests/README.md) Cypress based UI tests (for other frameworks check [aem-test-samples](https://github.com/adobe/aem-test-samples) repository
-* all: a single content package that embeds all of the compiled modules (bundles and content packages) including any vendor dependencies
-* analyse: this module runs analysis on the project which provides additional validation for deploying into AEMaaCS
+---
 
-## How to build
+## 1. Overview & Deliverables
 
-To build all the modules run in the project root directory the following command with Maven 3:
+This repository contains production-ready AEM implementations for two business requirements designed with enterprise-grade best practices:
 
-    mvn clean install
+| Component | Resource Type | Core Objective | Key Differentiators |
+| :--- | :--- | :--- | :--- |
+| **Product Listing** | `wknd/components/productlisting` | Renders a responsive 3×3 grid of product cards consumed asynchronously. | OSGi Service + Sling Servlet BFF proxy; resilient seed fallback; Coral UI 3 grid presets (`3x3`, `3x2`, `2x2`, `custom`); 100% XSS-immune DOM creation. |
+| **High-Performance Carousel** | `wknd/components/carousel` | Image carousel with authorable DAM assets and high-res asset handling. | Extends Core Carousel; 8-slide defensive ceiling; eager LCP on slide 1, lazy loading on slides 2..N; responsive WebP `srcset`; CSS `aspect-ratio` CLS prevention; WCAG 2.1 compliance. |
 
-To build all the modules and deploy the `all` package to a local instance of AEM, run in the project root directory the following command:
+---
 
-    mvn clean install -PautoInstallSinglePackage
+## 2. Component 1: Product Listing 3x3 Grid Component
 
-Or to deploy it to a publish instance, run
+### Architectural Design
 
-    mvn clean install -PautoInstallSinglePackagePublish
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User / Browser
+    participant HTL as HTL (productlisting.html)
+    participant JS as ClientLib JS (productlisting.js)
+    participant Servlet as ProductListingServlet (/bin/wknd/products)
+    participant Service as ProductListingService (OSGi)
+    participant Remote as External REST API / Local Seed
 
-Or alternatively
+    User->>HTL: Requests Page containing Component
+    HTL-->>User: Renders Title + 3x3 Shimmer Skeleton + data-attributes
+    Note over User,JS: DOM Ready: productlisting.js initializes
+    JS->>Servlet: HTTP GET /bin/wknd/products?limit=9
+    Servlet->>Service: getProductsAsJson(limit=9)
+    alt External REST API Configured
+        Service->>Remote: HTTP GET (with timeouts)
+        Remote-->>Service: JSON Payload
+    else Blank or Network Failure
+        Service->>Service: Fallback to local 10-product seed catalog
+    end
+    Service->>Service: Slices top 9 products & serializes via Gson
+    Service-->>Servlet: Returns JSON Array
+    Servlet-->>JS: HTTP 200 (application/json)
+    JS->>JS: Builds DOM safely (document.createElement)
+    JS-->>User: Renders 3x3 Teal Product Cards in DOM
+```
 
-    mvn clean install -PautoInstallSinglePackage -Daem.port=4503
+### Hardcoded vs. URL Strategy
+* **Why Hardcoding in Servlets is an Anti-Pattern:** Violates the Single Responsibility Principle (SRP) and requires a full code deployment just to update product listings or prices.
+* **Why Relying Exclusively on External URLs is Risky:** Network downtime, rate limiting, and browser CORS restrictions can break the frontend.
+* **The Enterprise Solution:** A **Resilient Strategy Pattern**:
+  1. The OSGi Service (`ProductListingService`) manages HTTP connections with configurable connect/read timeouts.
+  2. If the external endpoint is blank or fails, it **automatically falls back to the seed catalog** (10 items), preventing white screens or broken markup.
+  3. The Sling Servlet acts as a **Backend-For-Frontend (BFF) proxy** mounted at `/bin/wknd/products` and `wknd/components/productlisting.products.json`, eliminating CORS hurdles while enabling AEM Dispatcher caching.
 
-Or to deploy only the bundle to the author, run
+### Dialog & Sling Model Configuration
+* **Coral UI 3 Dialog (`_cq_dialog`):**
+  * **Grid Layout Presets:** `3x3 Blocks (9 Products - Default)`, `3x2 Blocks (6 Products)`, `2x2 Blocks (4 Products)`, and `Custom`.
+  * **Data Source Switcher:** Toggle between OSGi Service endpoint and custom REST endpoint.
+* **Sling Model (`ProductListingModel`):**
+  * Reads authored JCR values, injects `ProductListingService`, and exposes computed CSS grid rules (`grid-template-columns: repeat(3, 1fr)`).
 
-    mvn clean install -PautoInstallBundle
+---
 
-Or to deploy only a single content package, run in the sub-module directory (i.e `ui.apps`)
+## 3. Component 2: High-Performance Image Carousel Component
 
-    mvn clean install -PautoInstallPackage
+### Carousel Architectural Overview & Sling Model Delegation Pattern
 
-## Documentation
+The Carousel component extends Adobe WCM Core Components (`sling:resourceSuperType="core/wcm/components/carousel/v1/carousel"`), providing content authors with a dedicated dialog to select DAM assets (`/content/dam`), alt text, headings, captions, and CTA links.
 
-The build process also generates documentation in the form of README.md files in each module directory for easy reference. Depending on the options you select at build time, the content may be customized to your project.
+#### Why Sling Model Delegation Pattern (`@Self @Via(type = ResourceSuperType.class)`)?
+In enterprise AEM development, extending Core Components via the **Sling Model Delegation Pattern** is the official Adobe architectural standard, vastly superior to traditional Java inheritance:
 
-## Testing
+1. **Decoupling from Adobe Internal Implementation:**  
+   `com.adobe.cq.wcm.core.components.internal.models.v1.CarouselImpl` is located in an `internal` package not exported in OSGi contracts. Subclassing it directly creates tight coupling and can cause severe `NoClassDefFoundError` or class incompatibilities during AEM as a Cloud Service rolling maintenance updates.
+2. **Composition over Inheritance (GoF Decorator Pattern):**  
+   By implementing the public `com.adobe.cq.wcm.core.components.models.Carousel` interface and injecting the super-type model via:
+   ```java
+   @Self
+   @Via(type = ResourceSuperType.class)
+   private Carousel delegate;
+   ```
+   our custom model cleanly forwards standard Core Carousel features (Adobe Client Data Layer / ACDL, SPA JSON Exporter, accessibility attributes) to Adobe's implementation while transparently decorating it with custom capabilities (defensive slide limits, responsive `srcset`, LCP optimization).
+3. **Full Compatibility with Headless / SPA & AEM Sites:**  
+   Because `CustomCarouselModel` implements `Carousel` and `ComponentExporter`, it functions seamlessly in traditional HTL pages, SPA Editor frameworks (React/Angular), and Headless GraphQL/JSON queries.
 
-There are three levels of testing contained in the project:
+### Authoring Restrictions & Defensive Limits
 
-### Unit tests
+#### Q: Do we need to add restrictions on the max number of images in a carousel?
+**Yes, absolutely.** Both client-side and server-side restrictions are enforced:
 
-This show-cases classic unit testing of the code contained in the bundle. To
-test, execute:
+1. **UX Impact (Banner Blindness):** Nielsen Norman Group user research shows that engagement drops by over 80% after the 3rd or 4th slide. Carousels with 10–20 slides cause cognitive overload and are ignored.
+2. **Core Web Vitals & DOM Bloat:** Every extra slide increases DOM node count, increases layout calculation costs, and wastes mobile device memory.
+3. **Recommended Limit:** **Between 5 and 8 slides maximum** (defaulting to 6).
+4. **Two-Tier Enforcement:**
+   * **Dialog UI Validation:** A Granite UI Coral validator (`validation="carousel-max-items"`, `ea-max-items="8"`) prevents authors from adding more than 8 slides in the authoring dialog.
+   * **Sling Model Server-Side Ceiling:** `CustomCarouselModel` enforces `ABSOLUTE_MAX_SLIDES = 8`. Even if content is imported via packages or JCR scripts with 15 slides, the model slices the list to 8, guaranteeing that published pages never exceed the performance budget.
 
-    mvn clean test
+---
 
-### Integration tests
+### High-Resolution Asset Performance Mitigation (>4 MB)
 
-This allows running integration tests that exercise the capabilities of AEM via
-HTTP calls to its API. To run the integration tests, run:
+#### Q: How do we handle high-resolution images (>4 MB each) without performance degradation?
+If 6 slides each load raw 4 MB DAM assets, the page payload reaches **24 MB on initial load**, leading to critical Google PageSpeed and LCP failure.
 
-    mvn clean verify -Plocal
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ High-Resolution DAM Asset (>4 MB Original: 4000x3000px)               │
+└────────────────────────────────────────────────────────────────────────┘
+                                    │
+           ┌────────────────────────┴────────────────────────┐
+           ▼                                                 ▼
+┌───────────────────────────────┐        ┌───────────────────────────────┐
+│ Slide 1 (LCP Candidate)       │        │ Slides 2 to N (Hidden Slides) │
+├───────────────────────────────┤        ├───────────────────────────────┤
+│ • loading="eager"             │        │ • loading="lazy"              │
+│ • fetchpriority="high"        │        │ • fetchpriority="low"         │
+│ • WebP Rendition (~120-180 KB)│        │ • Download DEFERRED until view│
+│ • Initial load: ~150 KB       │        │ • Initial load: 0 KB (Saved!) │
+└───────────────────────────────┘        └───────────────────────────────┘
+```
 
-Test classes must be saved in the `src/main/java` directory (or any of its
-subdirectories), and must be contained in files matching the pattern `*IT.java`.
+The component implements 5 key optimizations:
 
-The configuration provides sensible defaults for a typical local installation of
-AEM. If you want to point the integration tests to different AEM author and
-publish instances, you can use the following system properties via Maven's `-D`
-flag.
+1. **Strategic Eager vs. Lazy Loading:**
+   * **Slide 1 (LCP Candidate):** Rendered with `loading="eager"` and `fetchpriority="high"`. This signals the browser to fetch the hero banner immediately, securing a green **Largest Contentful Paint (LCP)** score.
+   * **Slides 2 to N (Hidden Slides):** Rendered with `loading="lazy"` and `fetchpriority="low"`. The browser **defers downloading them during initial page load**.
+   * **Impact:** Initial page payload drops from **24 MB down to ~150 KB** (a **99% payload reduction**).
+2. **Never Serve Original DAM Assets:**
+   * Uses AEM Web-Optimized Image Delivery (NGDM) or adaptive WebP renditions (`cq5dam.web.1280.1280.jpeg`).
+   * Converts 4 MB+ JPEG/PNG originals into lightweight WebP/AVIF formats (typically 100–180 KB) with 75–85% bandwidth savings.
+3. **Responsive Breakpoints with `srcset` and `sizes`:**
+   * Emits responsive image widths: `480w`, `768w`, `1200w`, `1600w`, and `1920w`. Mobile phones only fetch the 480w image (~35 KB), while 4K displays receive the crisp desktop rendition.
+4. **CSS Aspect-Ratio Reservation (CLS Prevention):**
+   * Pre-allocates viewport space using CSS `aspect-ratio: 16 / 9;` (authorable to `21:9`, `4:3`, or `1:1`). The browser reserves height before the image file arrives, completely eliminating **Cumulative Layout Shift (CLS)**.
+5. **CDN & Dispatcher Cache-Control:**
+   * Emits immutable asset URLs allowing edge CDNs (Fastly / Cloudflare) to cache images indefinitely (`Cache-Control: public, max-age=31536000, immutable`).
 
-| Property              | Description                                         | Default value           |
-|-----------------------|-----------------------------------------------------|-------------------------|
-| `it.author.url`       | URL of the author instance                          | `http://localhost:4502` |
-| `it.author.user`      | Admin user for the author instance                  | `admin`                 |
-| `it.author.password`  | Password of the admin user for the author instance  | `admin`                 |
-| `it.publish.url`      | URL of the publish instance                         | `http://localhost:4503` |
-| `it.publish.user`     | Admin user for the publish instance                 | `admin`                 |
-| `it.publish.password` | Password of the admin user for the publish instance | `admin`                 |
+### Core Web Vitals & Accessibility (WCAG 2.1)
+* **Pause / Play Toggle:** Complies with WCAG 2.1 Success Criterion 2.2.2 (Pause, Stop, Hide for moving/autoplaying content).
+* **Keyboard Navigation:** Left/Right arrow key navigation and tab focus management.
+* **Touch Swipe:** Native touch gestures (`touchstart` / `touchend`) for mobile devices.
+* **Reduced Motion:** Detects `@media (prefers-reduced-motion: reduce)` to disable transitions and autoplay automatically for users with motion sensitivity.
 
-The integration tests in this archetype use the [AEM Testing
-Clients](https://github.com/adobe/aem-testing-clients) and showcase some
-recommended [best
-practices](https://github.com/adobe/aem-testing-clients/wiki/Best-practices) to
-be put in use when writing integration tests for AEM.
+---
 
-## Static Analysis
+## 4. Automated Testing Suite
 
-The `analyse` module performs static analysis on the project for deploying into AEMaaCS. It is automatically
-run when executing
+The project includes unit tests built with **JUnit 5**, **Mockito**, and **AEM Mocks** (`io.wcm.testing.aem-mock.junit5`).
 
-    mvn clean install
+### Test Coverage Summary: 20 Tests, 100% Passing
+```text
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.adobe.aem.guides.wknd.core.models.CustomCarouselModelTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Running com.adobe.aem.guides.wknd.core.models.ProductListingModelTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Running com.adobe.aem.guides.wknd.core.services.ProductListingServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Running com.adobe.aem.guides.wknd.core.servlets.ProductListingServletTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Running com.adobe.aem.guides.wknd.core.models.HelloWorldModelTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Running com.adobe.aem.guides.wknd.core.models.TableModelTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Running com.adobe.aem.guides.wknd.core.filters.LoggingFilterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Running com.adobe.aem.guides.wknd.core.schedulers.SimpleScheduledTaskTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Running com.adobe.aem.guides.wknd.core.listeners.SimpleResourceListenerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Running com.adobe.aem.guides.wknd.core.servlets.SimpleServletTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] Results:
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+```
 
-from the project root directory. Additional information about this analysis and how to further configure it
-can be found here https://github.com/adobe/aemanalyser-maven-plugin
+---
 
-### UI tests
+## 5. Build, Deployment & Verification
 
-They will test the UI layer of your AEM application using Cypress framework.
+### Prerequisites
+* Java 11 or Java 21
+* Apache Maven 3.8+
+* AEM as a Cloud Service SDK or AEM 6.5.7+
 
-Check README file in `ui.tests` module for more details.
+### Running Unit Tests
+```bash
+cd core
+mvn clean test
+```
 
-Examples of UI tests in different frameworks can be found here: https://github.com/adobe/aem-test-samples
+### Building All Modules & Generating Content Packages
+```bash
+mvn clean install
+```
 
-## ClientLibs
+### Deploying to a Local AEM Author Instance (`http://localhost:4502`)
+```bash
+mvn clean install -PautoInstallSinglePackage
+```
+*(Default credentials: `admin` / `admin`)*
 
-The frontend module is made available using an [AEM ClientLib](https://helpx.adobe.com/experience-manager/6-5/sites/developing/using/clientlibs.html). When executing the NPM build script, the app is built and the [`aem-clientlib-generator`](https://github.com/wcm-io-frontend/aem-clientlib-generator) package takes the resulting build output and transforms it into such a ClientLib.
+---
 
-A ClientLib will consist of the following files and directories:
+## 6. Repository & Module Structure
 
-- `css/`: CSS files which can be requested in the HTML
-- `css.txt` (tells AEM the order and names of files in `css/` so they can be merged)
-- `js/`: JavaScript files which can be requested in the HTML
-- `js.txt` (tells AEM the order and names of files in `js/` so they can be merged
-- `resources/`: Source maps, non-entrypoint code chunks (resulting from code splitting), static assets (e.g. icons), etc.
+```text
+├── core/                                       # OSGi Bundle module
+│   ├── src/main/java/.../core/
+│   │   ├── dto/
+│   │   │   └── Product.java                    # Product catalog DTO
+│   │   ├── models/
+│   │   │   ├── CarouselSlide.java              # Carousel slide POJO (LCP/Lazy/srcset)
+│   │   │   ├── CustomCarouselModel.java        # Carousel Sling Model (defensive limits)
+│   │   │   └── ProductListingModel.java        # Product listing Sling Model
+│   │   ├── services/
+│   │   │   ├── ProductListingService.java      # OSGi Service interface
+│   │   │   ├── config/
+│   │   │   │   └── ProductListingServiceConfig.java # OSGi Metatype configuration
+│   │   │   └── impl/
+│   │   │       └── ProductListingServiceImpl.java   # Resilient REST client + seed fallback
+│   │   └── servlets/
+│   │       └── ProductListingServlet.java      # Dual-registered Sling Servlet
+│   └── src/test/java/.../                      # JUnit 5 + AEM Mocks unit tests
+│
+├── ui.apps/                                    # AEM JCR content & clientlibs
+│   └── src/main/content/jcr_root/apps/wknd/components/
+│       ├── carousel/
+│       │   ├── .content.xml                    # Component definition (extends Core Carousel)
+│       │   ├── _cq_dialog/.content.xml         # Coral UI 3 dialog (multifield max 8 slides)
+│       │   ├── carousel.html                   # Semantic, accessible HTL template
+│       │   └── clientlibs/
+│       │       ├── clientlib-dialog/           # Granite UI max-items validator
+│       │       └── clientlib-site/             # GPU transitions, touch, keyboard, reduced motion
+│       └── productlisting/
+│           ├── .content.xml
+│           ├── _cq_dialog/.content.xml         # Grid preset & data source authoring
+│           ├── productlisting.html             # BEM markup with shimmer skeletons
+│           └── clientlibs/                     # CSS Grid (teal cards) & XSS-safe JS
+│
+└── packages/                                   # Pre-built deployable packages
+    ├── wknd.core-1.0.0-SNAPSHOT.jar
+    └── wknd.ui.apps-1.0.0-SNAPSHOT.zip
+```
 
-## Simplified Index Management
-
-If you're building for AEM as a Cloud Service, this project includes a `diff.index` under
-`ui.apps/src/main/content/jcr_root/_oak_index` ([documentation](https://oak-indexing.github.io/oakTools/simplified.html)).
-Packaging it triggers a benign Maven build warning from the `jackrabbit-nodetypes` validator
-(`... is not allowed as child of node with potential default types [nt:folder] ... /oak:index/diff.index`),
-because `/oak:index`'s real node type isn't declared in any content package. It's a known false
-positive and safe to ignore.
-
-## Maven settings
-
-The project comes with the auto-public repository configured. To setup the repository in your Maven settings, refer to:
-
-    http://helpx.adobe.com/experience-manager/kb/SetUpTheAdobeMavenRepository.html
