@@ -315,3 +315,4 @@ mvn clean install -PautoInstallPackage
    - Slide 1 has `loading="eager"` and `fetchpriority="high"`.
    - Slides 2..N have `loading="lazy"` and `fetchpriority="low"`.
    - High-res images use responsive WebP renditions with no layout shifts.
+
