@@ -1,0 +1,100 @@
+<!--/*
+    WKND High-Performance Carousel Component
+    Extends Core Carousel with:
+    - Authorable DAM images via dialog multifield
+    - Defensive capping to max 8 slides for CWV / UX
+    - Responsive Web-Optimized renditions (srcset/sizes) for >4MB high-res images
+    - Strategic LCP optimization (Slide 1 eager with high fetchpriority; Slides 2..N lazy)
+    - CSS Aspect Ratio to eliminate Cumulative Layout Shift (CLS)
+    - WCAG 2.1 compliance (accessible controls, pause/play, keyboard nav, prefers-reduced-motion)
+*/-->
+<div data-sly-use.model="com.adobe.aem.guides.wknd.core.models.CustomCarouselModel"
+     data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
+     class="cmp-carousel-wrapper">
+
+    <!--/* Author-mode placeholder when empty */-->
+    <div data-sly-test="${model.empty}" class="cq-placeholder" data-emptytext="Custom Carousel - Open dialog to configure slides">
+        <p style="padding: 24px; text-align: center; background: #f8f9fa; border: 2px dashed #ced4da; color: #6c757d;">
+            Carousel is currently empty. Open the component dialog to add up to 8 slides.
+        </p>
+    </div>
+
+    <!--/* Live Carousel */-->
+    <section data-sly-test="${!model.empty}"
+             id="${model.id}"
+             class="cmp-carousel"
+             role="region"
+             aria-roledescription="carousel"
+             aria-label="Featured Stories"
+             data-cmp-is="carousel"
+             data-cmp-autoplay="${model.autoplay}"
+             data-cmp-delay="${model.delay}">
+
+        <!--/* Slide Viewport */-->
+        <div class="cmp-carousel__content" style="${model.aspectRatioStyle @ context='styleToken'}">
+            <div data-sly-repeat.slide="${model.slides}"
+                 id="${model.id}-item-${slide.index}"
+                 class="cmp-carousel__item ${slide.active ? 'cmp-carousel__item--active' : ''}"
+                 role="tabpanel"
+                 aria-roledescription="slide"
+                 aria-label="Slide ${slideList.count} of ${model.slideCount}">
+
+                <!--/* Responsive Image with Eager/Lazy & FetchPriority Strategy */-->
+                <picture class="cmp-carousel__image-wrapper">
+                    <img class="cmp-carousel__image"
+                         src="${slide.src @ context='uri'}"
+                         srcset="${slide.srcSet @ context='attribute'}"
+                         sizes="${slide.sizes @ context='attribute'}"
+                         alt="${slide.alt}"
+                         loading="${slide.loading}"
+                         fetchpriority="${slide.fetchPriority}"
+                         decoding="async" />
+                </picture>
+
+                <!--/* Text & CTA Overlay */-->
+                <div class="cmp-carousel__caption" data-sly-test="${slide.hasCaption}">
+                    <div class="cmp-carousel__caption-content">
+                        <h2 class="cmp-carousel__title" data-sly-test="${slide.title}">${slide.title}</h2>
+                        <p class="cmp-carousel__description" data-sly-test="${slide.description}">${slide.description}</p>
+                        <a class="cmp-carousel__action-btn"
+                           data-sly-test="${slide.hasLink}"
+                           href="${slide.linkUrl @ context='uri'}">${slide.buttonText || 'Learn More'}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--/* Navigation Arrows & Pause/Play Control (WCAG 2.1) */-->
+        <div class="cmp-carousel__actions" data-sly-test="${model.slideCount > 1}">
+            <button type="button" class="cmp-carousel__action cmp-carousel__action--previous" aria-label="Previous Slide">
+                <span class="cmp-carousel__action-icon" aria-hidden="true">&#10094;</span>
+            </button>
+            <button type="button" class="cmp-carousel__action cmp-carousel__action--next" aria-label="Next Slide">
+                <span class="cmp-carousel__action-icon" aria-hidden="true">&#10095;</span>
+            </button>
+            <button type="button"
+                    class="cmp-carousel__action cmp-carousel__action--toggle-pause"
+                    aria-label="Pause slide rotation"
+                    aria-pressed="false"
+                    data-sly-test="${model.autoplay}">
+                <span class="cmp-carousel__action-icon cmp-carousel__icon--pause" aria-hidden="true">&#10074;&#10074;</span>
+                <span class="cmp-carousel__action-icon cmp-carousel__icon--play" aria-hidden="true" style="display:none;">&#9658;</span>
+            </button>
+        </div>
+
+        <!--/* Dot Indicators / Tablist */-->
+        <ol class="cmp-carousel__indicators" role="tablist" aria-label="Choose a slide to display" data-sly-test="${model.slideCount > 1}">
+            <li data-sly-repeat.dot="${model.slides}"
+                class="cmp-carousel__indicator ${dot.active ? 'cmp-carousel__indicator--active' : ''}"
+                role="tab"
+                aria-controls="${model.id}-item-${dot.index}"
+                aria-label="Slide ${dotList.count}"
+                tabindex="${dot.active ? '0' : '-1'}"
+                data-slide-index="${dot.index}">
+            </li>
+        </ol>
+    </section>
+
+    <!--/* Include Component ClientLib */-->
+    <sly data-sly-call="${clientlib.all @ categories=['wknd.carousel', 'wknd.site']}"/>
+</div>

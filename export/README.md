@@ -85,8 +85,25 @@ sequenceDiagram
 
 ## 3. Component 2: High-Performance Image Carousel Component
 
-### Carousel Architectural Overview
-The Carousel extends Adobe Core Components (`sling:resourceSuperType="core/wcm/components/carousel/v1/carousel"`), providing content authors with a dedicated dialog to select DAM assets (`/content/dam`), alt text, headings, captions, and CTA links.
+### Carousel Architectural Overview & Sling Model Delegation Pattern
+
+The Carousel component extends Adobe WCM Core Components (`sling:resourceSuperType="core/wcm/components/carousel/v1/carousel"`), providing content authors with a dedicated dialog to select DAM assets (`/content/dam`), alt text, headings, captions, and CTA links.
+
+#### Why Sling Model Delegation Pattern (`@Self @Via(type = ResourceSuperType.class)`)?
+In enterprise AEM development, extending Core Components via the **Sling Model Delegation Pattern** is the official Adobe architectural standard, vastly superior to traditional Java inheritance:
+
+1. **Decoupling from Adobe Internal Implementation:**  
+   `com.adobe.cq.wcm.core.components.internal.models.v1.CarouselImpl` is located in an `internal` package not exported in OSGi contracts. Subclassing it directly creates tight coupling and can cause severe `NoClassDefFoundError` or class incompatibilities during AEM as a Cloud Service rolling maintenance updates.
+2. **Composition over Inheritance (GoF Decorator Pattern):**  
+   By implementing the public `com.adobe.cq.wcm.core.components.models.Carousel` interface and injecting the super-type model via:
+   ```java
+   @Self
+   @Via(type = ResourceSuperType.class)
+   private Carousel delegate;
+   ```
+   our custom model cleanly forwards standard Core Carousel features (Adobe Client Data Layer / ACDL, SPA JSON Exporter, accessibility attributes) to Adobe's implementation while transparently decorating it with custom capabilities (defensive slide limits, responsive `srcset`, LCP optimization).
+3. **Full Compatibility with Headless / SPA & AEM Sites:**  
+   Because `CustomCarouselModel` implements `Carousel` and `ComponentExporter`, it functions seamlessly in traditional HTL pages, SPA Editor frameworks (React/Angular), and Headless GraphQL/JSON queries.
 
 ### Authoring Restrictions & Defensive Limits
 
@@ -252,3 +269,4 @@ mvn clean install -PautoInstallSinglePackage
     ├── wknd.core-1.0.0-SNAPSHOT.jar
     └── wknd.ui.apps-1.0.0-SNAPSHOT.zip
 ```
+

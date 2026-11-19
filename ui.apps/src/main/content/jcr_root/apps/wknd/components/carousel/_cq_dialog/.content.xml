@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+    xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Carousel Configuration"
+    sling:resourceType="cq/gui/components/authoring/dialog"
+    extraClientlibs="[wknd.carousel.dialog]">
+    <content
+        jcr:primaryType="nt:unstructured"
+        sling:resourceType="granite/ui/components/coral/foundation/container">
+        <items jcr:primaryType="nt:unstructured">
+            <tabs
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="granite/ui/components/coral/foundation/tabs"
+                maximized="{Boolean}true">
+                <items jcr:primaryType="nt:unstructured">
+
+                    <!-- ── TAB 1: SLIDES MULTIFIELD ── -->
+                    <slidesTab jcr:primaryType="nt:unstructured"
+                        jcr:title="Slides"
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        margin="{Boolean}true">
+                        <items jcr:primaryType="nt:unstructured">
+                            <columns jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                margin="{Boolean}true">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <column jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/container">
+                                        <items jcr:primaryType="nt:unstructured">
+                                            <infoAlert jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/alert"
+                                                text="Best Practice: Keep carousels between 3 and 6 slides (maximum 8) for optimal Core Web Vitals (LCP) and user attention."
+                                                variant="info"/>
+                                            <slides jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                composite="{Boolean}true"
+                                                fieldLabel="Carousel Slides (Max 8)"
+                                                fieldDescription="Add slides. High resolution assets (&gt;4 MB) are automatically served via responsive web renditions with LCP prioritization."
+                                                validation="carousel-max-items"
+                                                ea-max-items="8">
+                                                <field jcr:primaryType="nt:unstructured"
+                                                    name="./slides"
+                                                    sling:resourceType="granite/ui/components/coral/foundation/container">
+                                                    <items jcr:primaryType="nt:unstructured">
+                                                        <imagePath jcr:primaryType="nt:unstructured"
+                                                            sling:resourceType="granite/ui/components/coral/foundation/form/pathfield"
+                                                            fieldLabel="Image Asset"
+                                                            fieldDescription="Select image from DAM (/content/dam)"
+                                                            name="./imagePath"
+                                                            required="{Boolean}true"
+                                                            rootPath="/content/dam"/>
+                                                        <alt jcr:primaryType="nt:unstructured"
+                                                            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                            fieldLabel="Alt Text"
+                                                            fieldDescription="Required for WCAG accessibility (screen readers)"
+                                                            name="./alt"
+                                                            required="{Boolean}true"/>
+                                                        <title jcr:primaryType="nt:unstructured"
+                                                            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                            fieldLabel="Headline / Title"
+                                                            fieldDescription="Slide overlay title"
+                                                            name="./title"/>
+                                                        <description jcr:primaryType="nt:unstructured"
+                                                            sling:resourceType="granite/ui/components/coral/foundation/form/textarea"
+                                                            fieldLabel="Caption / Description"
+                                                            fieldDescription="Short text overlay"
+                                                            name="./description"/>
+                                                        <linkUrl jcr:primaryType="nt:unstructured"
+                                                            sling:resourceType="granite/ui/components/coral/foundation/form/pathfield"
+                                                            fieldLabel="Call To Action Link"
+                                                            fieldDescription="Target page path or external URL"
+                                                            name="./linkUrl"
+                                                            rootPath="/content"/>
+                                                        <buttonText jcr:primaryType="nt:unstructured"
+                                                            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                            fieldLabel="Button Label"
+                                                            fieldDescription="e.g. 'Learn More', 'Explore'"
+                                                            name="./buttonText"/>
+                                                    </items>
+                                                </field>
+                                            </slides>
+                                        </items>
+                                    </column>
+                                </items>
+                            </columns>
+                        </items>
+                    </slidesTab>
+
+                    <!-- ── TAB 2: PLAYBACK & TIMING ── -->
+                    <playbackTab jcr:primaryType="nt:unstructured"
+                        jcr:title="Playback"
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        margin="{Boolean}true">
+                        <items jcr:primaryType="nt:unstructured">
+                            <columns jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                margin="{Boolean}true">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <column jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/container">
+                                        <items jcr:primaryType="nt:unstructured">
+                                            <autoplay jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                fieldDescription="Check to automatically transition slides"
+                                                name="./autoplay"
+                                                text="Enable automatic slide transition"
+                                                value="{Boolean}true"
+                                                uncheckedValue="{Boolean}false"
+                                                checked="{Boolean}true"/>
+                                            <delay jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                                fieldLabel="Slide Transition Delay (ms)"
+                                                fieldDescription="Time in milliseconds before advancing to the next slide (default: 5000ms)"
+                                                name="./delay"
+                                                value="5000"
+                                                min="{Long}1000"
+                                                step="{Long}500"/>
+                                            <autopauseDisabled jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                fieldDescription="Check to keep auto-rotating even when user hovers over carousel (Not recommended for accessibility)"
+                                                name="./autopauseDisabled"
+                                                text="Disable pause on hover / focus"
+                                                value="{Boolean}true"
+                                                uncheckedValue="{Boolean}false"/>
+                                            <accessibilityLabel jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                fieldLabel="Accessibility Region Label"
+                                                fieldDescription="ARIA label for screen readers (e.g. 'Featured Stories', 'Hero Showcase')"
+                                                name="./accessibilityLabel"
+                                                value="Featured Stories"/>
+                                        </items>
+                                    </column>
+                                </items>
+                            </columns>
+                        </items>
+                    </playbackTab>
+
+                    <!-- ── TAB 3: PERFORMANCE & LAYOUT ── -->
+                    <performanceTab jcr:primaryType="nt:unstructured"
+                        jcr:title="Performance &amp; Layout"
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        margin="{Boolean}true">
+                        <items jcr:primaryType="nt:unstructured">
+                            <columns jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                margin="{Boolean}true">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <column jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/container">
+                                        <items jcr:primaryType="nt:unstructured">
+                                            <aspectRatio jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                                fieldLabel="Aspect Ratio (CLS Prevention)"
+                                                fieldDescription="Reserves aspect ratio in CSS to eliminate Cumulative Layout Shift while high-res images load"
+                                                name="./aspectRatio">
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <ratio169 jcr:primaryType="nt:unstructured"
+                                                        text="16:9 Widescreen (Standard Banner)"
+                                                        value="16:9"
+                                                        selected="{Boolean}true"/>
+                                                    <ratio219 jcr:primaryType="nt:unstructured"
+                                                        text="21:9 Ultra-wide Hero Banner"
+                                                        value="21:9"/>
+                                                    <ratio43 jcr:primaryType="nt:unstructured"
+                                                        text="4:3 Standard Photo"
+                                                        value="4:3"/>
+                                                    <ratio11 jcr:primaryType="nt:unstructured"
+                                                        text="1:1 Square"
+                                                        value="1:1"/>
+                                                </items>
+                                            </aspectRatio>
+                                            <maxAllowedSlides jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                                fieldLabel="Maximum Allowed Slides"
+                                                fieldDescription="Enforces defensive limit on published page (max 8)"
+                                                name="./maxAllowedSlides"
+                                                value="6"
+                                                min="{Long}1"
+                                                max="{Long}8"/>
+                                        </items>
+                                    </column>
+                                </items>
+                            </columns>
+                        </items>
+                    </performanceTab>
+
+                </items>
+            </tabs>
+        </items>
+    </content>
+</jcr:root>

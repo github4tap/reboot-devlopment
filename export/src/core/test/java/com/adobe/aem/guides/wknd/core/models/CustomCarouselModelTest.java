@@ -23,6 +23,8 @@ class CustomCarouselModelTest {
     @BeforeEach
     void setUp() {
         context.addModelsForClasses(CustomCarouselModel.class, CarouselSlide.class);
+        context.create().resource("/apps/wknd/components/carousel",
+                "sling:resourceSuperType", "core/wcm/components/carousel/v1/carousel");
         page = context.create().page("/content/wknd/en/home");
 
         // Mock a DAM asset structure in JCR (4.5 MB original size)
@@ -137,5 +139,35 @@ class CustomCarouselModelTest {
         assertNotNull(model);
         assertTrue(model.isEmpty());
         assertEquals(0, model.getSlideCount());
+    }
+
+    @Test
+    void testDelegationAndCoreComponentAdaptation() {
+        Resource carouselRes = context.create().resource(page, "carousel-delegation",
+                "sling:resourceType", "wknd/components/carousel",
+                "sling:resourceSuperType", "core/wcm/components/carousel/v1/carousel",
+                "accessibilityLabel", "Featured Stories",
+                "autoplay", true,
+                "delay", 4000L);
+
+        context.currentResource(carouselRes);
+
+        // Test adapting via SlingHttpServletRequest (standard HTL adaptTo pathway)
+        com.adobe.cq.wcm.core.components.models.Carousel carouselFromRequest =
+                context.request().adaptTo(com.adobe.cq.wcm.core.components.models.Carousel.class);
+        assertNotNull(carouselFromRequest, "Request should adapt to Core Components Carousel interface via Delegation");
+        assertTrue(carouselFromRequest instanceof CustomCarouselModel);
+
+        CustomCarouselModel customModel = (CustomCarouselModel) carouselFromRequest;
+        assertEquals("Featured Stories", customModel.getAccessibilityLabel());
+        assertTrue(customModel.getAutoplay());
+        assertEquals(4000L, customModel.getDelay());
+        assertNotNull(customModel.getId());
+        assertNotNull(customModel.getExportedType());
+
+        // Test adapting directly via Resource
+        CustomCarouselModel modelFromRes = carouselRes.adaptTo(CustomCarouselModel.class);
+        assertNotNull(modelFromRes);
+        assertEquals("Featured Stories", modelFromRes.getAccessibilityLabel());
     }
 }

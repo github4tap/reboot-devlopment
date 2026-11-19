@@ -3,6 +3,7 @@ package com.adobe.aem.guides.wknd.core.models;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -15,34 +16,50 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Default;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.ChildResource;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
+import org.apache.sling.models.annotations.via.ResourceSuperType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.export.json.ComponentExporter;
+import com.adobe.cq.wcm.core.components.models.Carousel;
+import com.adobe.cq.wcm.core.components.models.ListItem;
+import com.adobe.cq.wcm.core.components.models.PanelContainerItem;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
 
 /**
  * Sling Model for the WKND Custom High-Performance Carousel Component.
  *
- * <p>Addresses enterprise performance and UX requirements:</p>
+ * <p>Implements the Adobe Core Components <b>Sling Model Delegation Pattern</b>:
+ * extends the Core Carousel ({@code core/wcm/components/carousel/v1/carousel}) using
+ * {@code @Self @Via(type = ResourceSuperType.class) private Carousel delegate;}.</p>
+ *
+ * <p>Key architectural benefits & enterprise requirements addressed:</p>
  * <ul>
- *   <li><b>Defensive authoring limit:</b> Enforces a strict maximum of 8 slides to protect
- *       DOM performance, user attention, and Core Web Vitals (CWV).</li>
+ *   <li><b>Sling Model Delegation:</b> Delegates standard WCM Core Carousel functionality
+ *       (accessibility labels, data layer, SPA JSON export, active item tracking) to the underlying
+ *       Core Component model, avoiding re-inventing the wheel.</li>
+ *   <li><b>Defensive slide limit:</b> Enforces an authored maximum (default 6, hard ceiling 8)
+ *       to prevent DOM bloat, user attention fatigue, and Core Web Vitals (CWV) degradation.</li>
  *   <li><b>High-resolution asset mitigation (&gt;4 MB):</b> Prevents downloading multiple 4MB
  *       originals by configuring adaptive responsive breakpoints (srcset), modern web renditions,
- *       and strategic lazy loading (Slide 1 eager with high fetchpriority; Slides 2..N lazy).</li>
- *   <li><b>Cumulative Layout Shift (CLS) prevention:</b> Emits CSS aspect-ratio reservations.</li>
+ *       and strategic loading (Slide 1 eager with fetchpriority="high"; Slides 2..N lazy).</li>
+ *   <li><b>Cumulative Layout Shift (CLS) prevention:</b> Emits CSS aspect-ratio reservation styles.</li>
  * </ul>
  */
 @Model(
         adaptables = { Resource.class, SlingHttpServletRequest.class },
-        defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL,
-        resourceType = "wknd/components/carousel"
+        adapters = { Carousel.class, ComponentExporter.class, CustomCarouselModel.class },
+        resourceType = "wknd/components/carousel",
+        defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL
 )
-public class CustomCarouselModel {
+public class CustomCarouselModel implements Carousel {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomCarouselModel.class);
 
@@ -52,6 +69,14 @@ public class CustomCarouselModel {
      */
     public static final int ABSOLUTE_MAX_SLIDES = 8;
     public static final int DEFAULT_MAX_SLIDES = 6;
+
+    /**
+     * Core Component Sling Model Delegation.
+     * Injects the underlying Core Carousel implementation using ResourceSuperType.
+     */
+    @Self
+    @Via(type = ResourceSuperType.class)
+    private Carousel delegate;
 
     @ValueMapValue
     @Default(booleanValues = true)
@@ -72,6 +97,9 @@ public class CustomCarouselModel {
     @ValueMapValue
     @Default(intValues = DEFAULT_MAX_SLIDES)
     private int maxAllowedSlides;
+
+    @ValueMapValue
+    private String accessibilityLabel;
 
     @ChildResource(name = "slides")
     private List<Resource> slideResources;
@@ -214,7 +242,6 @@ public class CustomCarouselModel {
     }
 
     private String buildResponsiveSrcSet(Asset asset, String imagePath) {
-        // Look for standard AEM web renditions first
         List<String> srcSetEntries = new ArrayList<>();
 
         Rendition web480 = asset.getRendition("cq5dam.web.480.480.jpeg");
@@ -231,7 +258,6 @@ public class CustomCarouselModel {
             srcSetEntries.add(web1280.getPath() + " 1280w");
         }
 
-        // If specific named renditions do not exist, utilize AEM core image responsive selector URLs
         if (srcSetEntries.isEmpty()) {
             return imagePath + ".coreimg.80.480.jpeg 480w, "
                  + imagePath + ".coreimg.80.768.jpeg 768w, "
@@ -243,6 +269,149 @@ public class CustomCarouselModel {
         return String.join(", ", srcSetEntries);
     }
 
+    // =========================================================================
+    // Core Carousel Delegated / Overridden Methods
+    // =========================================================================
+
+    @Override
+    public boolean getAutoplay() {
+        if (delegate != null) {
+            return delegate.getAutoplay();
+        }
+        return autoplay;
+    }
+
+    public boolean isAutoplay() {
+        return getAutoplay();
+    }
+
+    @Override
+    public Long getDelay() {
+        if (delegate != null && delegate.getDelay() != null) {
+            return delegate.getDelay();
+        }
+        return delay != null ? delay : 5000L;
+    }
+
+    @Override
+    public boolean getAutopauseDisabled() {
+        if (delegate != null) {
+            return delegate.getAutopauseDisabled();
+        }
+        return autogpauseDisabled;
+    }
+
+    public boolean isAutogpauseDisabled() {
+        return getAutopauseDisabled();
+    }
+
+    @Override
+    public String getAccessibilityLabel() {
+        if (delegate != null && StringUtils.isNotBlank(delegate.getAccessibilityLabel())) {
+            return delegate.getAccessibilityLabel();
+        }
+        return accessibilityLabel;
+    }
+
+    @Override
+    public String getAccessibilityPrevious() {
+        return delegate != null ? delegate.getAccessibilityPrevious() : null;
+    }
+
+    @Override
+    public String getAccessibilityNext() {
+        return delegate != null ? delegate.getAccessibilityNext() : null;
+    }
+
+    @Override
+    public String getAccessibilityPlay() {
+        return delegate != null ? delegate.getAccessibilityPlay() : null;
+    }
+
+    @Override
+    public String getAccessibilityPause() {
+        return delegate != null ? delegate.getAccessibilityPause() : null;
+    }
+
+    @Override
+    public String getAccessibilityTablist() {
+        return delegate != null ? delegate.getAccessibilityTablist() : null;
+    }
+
+    @Override
+    public boolean getAccessibilityAutoItemTitles() {
+        return delegate != null && delegate.getAccessibilityAutoItemTitles();
+    }
+
+    @Override
+    public boolean isControlsPrepended() {
+        return delegate != null && delegate.isControlsPrepended();
+    }
+
+    @Override
+    public String getActiveItem() {
+        return delegate != null ? delegate.getActiveItem() : null;
+    }
+
+    @Override
+    public List<ListItem> getItems() {
+        return delegate != null ? delegate.getItems() : Collections.emptyList();
+    }
+
+    @Override
+    public List<? extends PanelContainerItem> getChildren() {
+        return delegate != null ? delegate.getChildren() : Collections.emptyList();
+    }
+
+    @Override
+    public String getBackgroundStyle() {
+        return delegate != null ? delegate.getBackgroundStyle() : null;
+    }
+
+    @Override
+    public Map<String, ? extends ComponentExporter> getExportedItems() {
+        return delegate != null ? delegate.getExportedItems() : Collections.emptyMap();
+    }
+
+    @Override
+    public String[] getExportedItemsOrder() {
+        return delegate != null ? delegate.getExportedItemsOrder() : new String[0];
+    }
+
+    @Override
+    public String getId() {
+        if (delegate != null && StringUtils.isNotBlank(delegate.getId())) {
+            return delegate.getId();
+        }
+        return this.id;
+    }
+
+    @Override
+    public String getExportedType() {
+        if (delegate != null && StringUtils.isNotBlank(delegate.getExportedType())) {
+            return delegate.getExportedType();
+        }
+        return "wknd/components/carousel";
+    }
+
+    @Override
+    public ComponentData getData() {
+        return delegate != null ? delegate.getData() : null;
+    }
+
+    @Override
+    public String getAppliedCssClasses() {
+        return delegate != null ? delegate.getAppliedCssClasses() : null;
+    }
+
+    public Carousel getDelegate() {
+        return delegate;
+    }
+
+    // =========================================================================
+    // Custom Performance & Layout Methods
+    // =========================================================================
+
     public List<CarouselSlide> getSlides() {
         return slides != null ? Collections.unmodifiableList(slides) : Collections.emptyList();
     }
@@ -253,18 +422,6 @@ public class CustomCarouselModel {
 
     public boolean isEmpty() {
         return slides == null || slides.isEmpty();
-    }
-
-    public boolean isAutoplay() {
-        return autoplay;
-    }
-
-    public Long getDelay() {
-        return delay;
-    }
-
-    public boolean isAutogpauseDisabled() {
-        return autogpauseDisabled;
     }
 
     public String getAspectRatio() {
@@ -280,10 +437,6 @@ public class CustomCarouselModel {
             return "aspect-ratio: 1 / 1;";
         }
         return "aspect-ratio: 16 / 9;";
-    }
-
-    public String getId() {
-        return id;
     }
 
     public int getMaxAllowedSlides() {
